@@ -11,8 +11,6 @@ import android.widget.Button;
 
 public class StartActivity extends AppCompatActivity {
 
-    SoundPool sp;
-    int btnbtn, scb, scs;
     private boolean start = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,10 +19,6 @@ public class StartActivity extends AppCompatActivity {
         Typeface typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
         ((Button) findViewById(R.id.play)).setTypeface(typeface);
-
-        sp = new SoundPool(6, AudioManager.STREAM_MUSIC, 0);
-        btnbtn = sp.load(this, R.raw.btnbtn, 1);
-
     }
 
     @Override
@@ -69,13 +63,17 @@ public class StartActivity extends AppCompatActivity {
     }
     public void buttonhandler(View view) {
         int id = view.getId();
-        sp.play(btnbtn, 1,1,1, 0,1);
+      //  sp.play(btnbtn, 1,1,1, 0,1);
         switch(id) {
             case R.id.play:
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.aiplayer:
+                startActivity(new Intent(this, AiMainActivity.class));
+                break;
             case R.id.setting:
+                startActivity(new Intent(this, AiMainActivity.class));
                 break;
             case R.id.help:
                 startActivity(new Intent(this, HelpActivity.class));

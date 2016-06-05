@@ -97,7 +97,7 @@ public class MinimaxAIPlayer extends AIPlayer {
 			}
 			currentBestMove = bestMoves.get(rand.nextInt(bestMoves.size()));
 			return currentBestMove.destIndex;
-		} catch (GameException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}

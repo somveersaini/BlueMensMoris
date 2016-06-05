@@ -24,13 +24,14 @@ import org.bluechat.blueninemenmoris.model.Game;
 import org.bluechat.blueninemenmoris.model.GameException;
 import org.bluechat.blueninemenmoris.model.HumanPlayer;
 import org.bluechat.blueninemenmoris.model.LocalGame;
+import org.bluechat.blueninemenmoris.model.MinimaxAIPlayer;
 import org.bluechat.blueninemenmoris.model.Move;
 import org.bluechat.blueninemenmoris.model.Player;
 import org.bluechat.blueninemenmoris.model.Token;
 
 import java.util.jar.Attributes;
 
-public class GameView extends View {
+public class AiGameView extends View {
 
 
     public int time = 0;
@@ -77,12 +78,12 @@ public class GameView extends View {
     private int starttimeinsec = 0;
 
 
-    public GameView(Context context, AttributeSet attrs) throws GameException {
+    public AiGameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
 
         game = new LocalGame();
         p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-        p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+        p2 = new MinimaxAIPlayer(Token.PLAYER_2,9,3);
         game.setPlayers(p1,p2);
         board = game.getGameBoard();
 
@@ -279,7 +280,7 @@ public class GameView extends View {
             if (min > 80 ) {
                 currActor = null;
             }else {
-              //  Log.d("selected opponent piece", " " + mini);
+                //  Log.d("selected opponent piece", " " + mini);
             }
             starttime = currenttime;
 
@@ -293,9 +294,9 @@ public class GameView extends View {
 
             int y = (int) event.getY();
             int x = (int) event.getX();
-           // Log.d("moving", x + " " + y);
+            // Log.d("moving", x + " " + y);
             if (currActor != null ) {
-               // Log.d("moving", "curractor");
+                // Log.d("moving", "curractor");
                 currActor.setPosxy(x - offsetX , y - offsetY);
                 // GameView.myvertex[selectednode].x = x - nodewidth / 2;
                 // GameView.myvertex[selectednode].y = y - nodeheight / 2;
@@ -357,6 +358,7 @@ public class GameView extends View {
 
                                     currActor.setRemoved(true);
                                     madeamill = false;
+                                    aiPlay();
                                 } else {
                                     System.out.println("You can't remove a piece from there. Try again");
                                 }
@@ -376,6 +378,7 @@ public class GameView extends View {
                                     else {
                                         System.out.println("changed current Player");
                                         game.updateCurrentTurnPlayer();
+                                        aiPlay();
                                     }
                                 } else {
                                     System.out.println("You can't place a piece there. Try again");
@@ -410,6 +413,7 @@ public class GameView extends View {
 
                                         currActor.setRemoved(true);
                                         madeamill = false;
+                                        aiPlay();
                                     } else {
                                         System.out.println("You can't remove a piece from there. Try again");
                                     }
@@ -431,6 +435,7 @@ public class GameView extends View {
                                         }else {
                                             System.out.println("changed current Player");
                                             game.updateCurrentTurnPlayer();
+                                            aiPlay();
                                         }
                                     } else {
                                         currActor.setPosxy(board.getX(srcIndex), board.getY(srcIndex));
@@ -438,13 +443,13 @@ public class GameView extends View {
                                     }
                                 }
                             }
-                            if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
+                            if(game.isTheGameOver() || numberMoves >= MAX_MOVES) {
                                 if(!game.isTheGameOver()) {
-                    				System.out.println("Draw!");
+                                    System.out.println("Draw!");
                                     draws++;
                                 } else {
-                        			System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                                    if((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
+                                    System.out.println("Game over. Player "+ game.getCurrentTurnPlayer().getPlayerToken()+" Won");
+                                    if((game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
                                         p1Wins++;
                                     } else {
                                         p2Wins++;
@@ -455,6 +460,8 @@ public class GameView extends View {
                                 p1.reset();
                                 p2.reset();
                                 game.setPlayers(p1, p2);
+                                this.invalidate();
+                                return true;
                             }
                         }catch (GameException e) {
                             e.printStackTrace();
@@ -473,20 +480,83 @@ public class GameView extends View {
             else{
                 currActor = null;
             }
-
+          //  aiPlay();
         }
 
         return true;
     }
 
+    public void aiPlay() throws GameException{
+        MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
+        int boardIndex;
+        Actor rActor;
+        if(game.getCurrentGamePhase() == Game.PLACING_PHASE){
+            boardIndex = p.getIndexToPlacePiece(board);
+
+
+            Actor[] actors = p.getActors();
+            for (Actor actor : actors) {
+                if(!actor.isPlaced()){
+                    numberMoves++; // TODO testing
+                    totalMoves++;
+                    p.raiseNumPiecesOnBoard();
+                    actor.setPosxy(board.getX(boardIndex), board.getY(boardIndex));
+                    actor.setPlacedIndex(boardIndex);
+                    break;
+                }
+            }
+
+            if(game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
+
+                if(game.madeAMill(boardIndex, p.getPlayerToken())) {
+                    Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                    boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                    game.removePiece(boardIndex, opponentPlayer);
+                    rActor = game.getPlayer1().getActorAt(boardIndex);
+                    ++removedPieceP1;
+                    rActor.setPosxy(removedx, (squareSpace) + (removedPieceP1 * removedSpace));
+                    rActor.setRemoved(true);
+                }
+                game.updateCurrentTurnPlayer();
+            } else {
+                System.out.println("You can't place a piece there. Try again");
+            }
+
+        }else{
+            int srcIndex, destIndex;
+            Move move = p.getPieceMove(board, game.getCurrentGamePhase());
+            srcIndex = move.srcIndex;
+            destIndex = move.destIndex;
+            System.out.println("Move piece from "+srcIndex+" to "+destIndex);
+
+            int result;
+            if((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
+                numberMoves++; // TODO testing
+                totalMoves++;
+                rActor = p.getActorAt(srcIndex);
+                rActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
+                rActor.setPlacedIndex(destIndex);
+                if(game.madeAMill(destIndex, p.getPlayerToken())) {
+                    Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                    boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                    game.removePiece(boardIndex, opponentPlayer);
+                    rActor = game.getPlayer1().getActorAt(boardIndex);
+                    ++removedPieceP1;
+                    rActor.setPosxy(removedx, (squareSpace) + (removedPieceP1 * removedSpace));
+                    rActor.setRemoved(true);
+                }
+                game.updateCurrentTurnPlayer();
+            }
+        }
+    }
     protected void onDraw(Canvas c) {
 
         int ctime = (int) System.currentTimeMillis() / 1000;
         int diff = ctime - starttimeinsec;
         starttimeinsec = ctime;
-       // if(focus){
-            time += diff;
-       // }
+        // if(focus){
+        time += diff;
+        // }
         int min = time / 60;
         int sec = time % 60;
 
@@ -516,7 +586,7 @@ public class GameView extends View {
 
         for (int i = 0; i < Board.NUM_POSITIONS_OF_BOARD; ++i) {
             c.drawCircle(board.getX(i), board.getY(i),10f,finalPaint);
-           // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
+            // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
         }
 
         Actor[] actors1 = game.getPlayer1().getActors();

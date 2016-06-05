@@ -4,16 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="org.bluechat.blueninemenmoris.MainActivity">
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="30dp"
-    android:id="@+id/name"
-    android:text="Somveer saini"/>
-    <org.bluechat.blueninemenmoris.GameView
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30dp"
+        android:id="@+id/name"
+        android:text="Somveer saini"/>
+    <org.bluechat.blueninemenmoris.AiGameView
         android:layout_width="match_parent"
         android:background="@drawable/roundgridtextbg"
-        android:id="@+id/gameView"
+        android:id="@+id/gameViewAi"
         android:layout_below="@+id/name"
         android:layout_height="wrap_content" />
 </RelativeLayout>

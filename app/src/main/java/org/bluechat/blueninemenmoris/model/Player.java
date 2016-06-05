@@ -83,4 +83,14 @@ public abstract class Player {
             actors[i] = new Actor((i + 1)*sx, sy);
         }
     }
+
+	public Actor getActorAt(int index){
+		Actor act = null;
+		for (Actor actor : actors) {
+			if(actor.getPlacedIndex() == index){
+				act = actor;
+			}
+		}
+		return act;
+	}
 }

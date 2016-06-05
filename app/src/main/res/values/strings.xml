@@ -6,6 +6,7 @@
     <string name="phone">8090150580</string>
     <string name="fb">fb.com/bluedroid15</string>
     <string name="btnplay">PLAY</string>
+    <string name="btnplayai">PLAY with Android</string>
     <string name="settingsBoard">Board Size</string>
     <string name="settingsSet">Set</string>
     <string name="hintcolumn">Col</string>
@@ -14,9 +15,14 @@
     <string name="btnmygame"> My Game   </string>
     <string name="btnsolution">DFS Solution</string>
     <string name="shortdesc">A NP-Hard problem\nBeat the DFS based approach</string>
-    <string name="details">This game starts from the top left corner as starting flood.
-    You gotta make this flood of one color (the whole board) by adding (tapping on) the appropriate neighbour color.\n\n
-    The interesting part is that you have to do this in minimum number of steps.\n\n
-    You are competing with GreedyDFS approach of this NP-Hard problem.\n\n
+    <string name="details">The game proceeds in three phases:\n
+    Placing men on vacant points\n
+        In this phase, you have to place all your pieces on board.\n\n
+    Moving men to adjacent points\n
+        In this you can only move to valid moves on board.\n\n
+    (optional phase) Moving men to any vacant point when a player has been reduced to three men\n
+        After your pieces, reduced to three you can move to any position available.\n\n
+         if you get the mill, you can pick a piece of opponent.\n\n
     Cheers!!!</string>
+    <string name="title_activity_ai_main">AiMainActivity</string>
 </resources>

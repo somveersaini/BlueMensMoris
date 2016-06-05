@@ -24,11 +24,23 @@
         android:textStyle="bold"
         android:layout_marginBottom="15dp"
         android:layout_centerHorizontal="true" />
+    <Button
+        android:id="@+id/aiplayer"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="buttonhandler"
+        android:text="@string/btnplayai"
+        android:textSize="30sp"
+        android:layout_below="@+id/play"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp"
+        android:layout_centerHorizontal="true" />
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/panel"
         android:weightSum="4"
-        android:layout_below="@id/play"
+        android:layout_below="@id/aiplayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageButton

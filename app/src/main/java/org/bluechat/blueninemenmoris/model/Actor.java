@@ -28,6 +28,7 @@ public class Actor {
         this.posy = posy;
         this.prex = posx;
         this.prey = posy;
+        placed = false;
     }
 
     /*
@@ -76,6 +77,8 @@ public class Actor {
 
     public void setRemoved(boolean removed) {
         this.removed = removed;
+        this.setPlacedIndex(111);
+        this.placed = false;
     }
 
     public boolean isAvailableToRemove() {
