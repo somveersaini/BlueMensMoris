@@ -12,7 +12,7 @@ import android.view.Window;
 /**
  * Created by Samsaini on 12/05/2016.
  */
-public class acheivements extends Activity{
+public class AcheivementsActivity extends Activity{
     private static final String TAG = "AchiActivity" ;
 
 

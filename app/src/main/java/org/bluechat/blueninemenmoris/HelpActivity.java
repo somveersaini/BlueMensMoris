@@ -8,9 +8,9 @@ import android.widget.TextView;
 
 
 /**
- * Created by Samsaini on 12/05/2016.
+ * Created by Somveersaini on 12/05/2016.
  */
-public class help extends Activity {
+public class HelpActivity extends Activity {
     private static final String TAG = "HelpActivity" ;
 
     @Override

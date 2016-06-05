@@ -11,13 +11,14 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".SplashActivity" />
-        <activity android:name=".acheivements" />
-        <activity android:name=".about" />
-        <activity android:name=".help" />
+        <activity android:name=".AcheivementsActivity" />
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".HelpActivity" />
         <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

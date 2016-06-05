@@ -39,10 +39,10 @@ public class StartActivity extends AppCompatActivity {
 //                    .playOn(findViewById(R.id.setting));
 //            YoYo.with(Techniques.SlideInUp)
 //                    .duration(600)
-//                    .playOn(findViewById(R.id.help));
+//                    .playOn(findViewById(R.id.HelpActivity));
 //            YoYo.with(Techniques.SlideInUp)
 //                    .duration(650)
-//                    .playOn(findViewById(R.id.about));
+//                    .playOn(findViewById(R.id.AboutActivity));
 //            YoYo.with(Techniques.SlideInUp)
 //                    .duration(700)
 //                    .playOn(findViewById(R.id.trophy));
@@ -59,10 +59,10 @@ public class StartActivity extends AppCompatActivity {
 //                .playOn(findViewById(R.id.setting));
 //        YoYo.with(Techniques.SlideInUp)
 //                .duration(600)
-//                .playOn(findViewById(R.id.help));
+//                .playOn(findViewById(R.id.HelpActivity));
 //        YoYo.with(Techniques.SlideInUp)
 //                .duration(650)
-//                .playOn(findViewById(R.id.about));
+//                .playOn(findViewById(R.id.AboutActivity));
 //        YoYo.with(Techniques.SlideInUp)
 //                .duration(700)
 //                .playOn(findViewById(R.id.trophy));
@@ -78,13 +78,13 @@ public class StartActivity extends AppCompatActivity {
             case R.id.setting:
                 break;
             case R.id.help:
-                startActivity(new Intent(this, help.class));
+                startActivity(new Intent(this, HelpActivity.class));
                 break;
             case R.id.about:
-                startActivity(new Intent(this, about.class));
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
             case R.id.trophy:
-                startActivity(new Intent(this, acheivements.class));
+                startActivity(new Intent(this, AcheivementsActivity.class));
                 break;
             default:
                 break;

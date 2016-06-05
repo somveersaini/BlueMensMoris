@@ -52,7 +52,8 @@ public class GameView extends View {
     private int secondSquareWidth;
     private int thirdSquareWidth;
     private int squareSpace;
-    private int removedSpace;
+    private int removedx; // for x of removed piece
+    private int removedSpace; //for spacing the pieces
     private int squareStart; //from where square start
     private Board board;     //gameboard
     private LocalGame game;   //localgame
@@ -177,7 +178,11 @@ public class GameView extends View {
         int startPieceY2 = viewWidth + 3*startPieceY1;
         game.getPlayer1().setActors(startPieceX,startPieceY1);
         game.getPlayer2().setActors(startPieceX,startPieceY2);
-        removedSpace = viewWidth/9;
+        removedSpace = viewWidth/10;
+        removedx  = bitmap.getWidth()/2 + 1;
+        if(squareStart > 4*removedx){
+            removedx = squareStart/2;
+        }
 
 
     }
@@ -319,7 +324,7 @@ public class GameView extends View {
                     }
                 }
 
-                Player p = ((LocalGame) game).getCurrentTurnPlayer();
+                Player p = game.getCurrentTurnPlayer();
                 int boardIndex;
                 if (min < 80 && mini != -1) {
                     Log.d("current game phase", "  ->  " +game.getCurrentGamePhase());
@@ -336,12 +341,12 @@ public class GameView extends View {
 
                                     if(opponentPlayer == Token.PLAYER_1){
                                         ++removedPieceP1;
-                                        currActor.setPosxy(squareStart/2, (squareSpace) + (removedPieceP1 * removedSpace));
-                                        Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + (removedPieceP1 * removedSpace));
+                                        currActor.setPosxy(removedx, (squareSpace) + ((removedPieceP1 + 1) * removedSpace));
+                                        Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
 
                                     }else {
                                         ++removedPieceP2;
-                                        currActor.setPosxy((viewWidth - (squareStart/2)), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
+                                        currActor.setPosxy((viewWidth - removedx), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
                                         Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                     }
 
@@ -389,12 +394,12 @@ public class GameView extends View {
 
                                         if(opponentPlayer == Token.PLAYER_1){
                                             ++removedPieceP1;
-                                            currActor.setPosxy(squareStart/2, (squareSpace) + (removedPieceP1 * removedSpace));
+                                            currActor.setPosxy(removedx, (squareSpace) + (removedPieceP1 * removedSpace));
                                             Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + (removedPieceP1 * removedSpace));
 
                                         }else {
                                             ++removedPieceP2;
-                                            currActor.setPosxy((viewWidth - (squareStart/2)), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
+                                            currActor.setPosxy((viewWidth - removedx), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
                                             Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                         }
 
@@ -433,8 +438,8 @@ public class GameView extends View {
                     				System.out.println("Draw!");
                                     draws++;
                                 } else {
-                        			System.out.println("Game over. Player "+((LocalGame)game).getCurrentTurnPlayer().getPlayerToken()+" Won");
-                                    if(((LocalGame)game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
+                        			System.out.println("Game over. Player "+ game.getCurrentTurnPlayer().getPlayerToken()+" Won");
+                                    if((game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
                                         p1Wins++;
                                     } else {
                                         p2Wins++;
@@ -444,7 +449,7 @@ public class GameView extends View {
                                 game = new LocalGame();
                                 p1.reset();
                                 p2.reset();
-                                ((LocalGame)game).setPlayers(p1, p2);
+                                game.setPlayers(p1, p2);
                             }
                         }catch (GameException e) {
                             e.printStackTrace();
@@ -504,7 +509,7 @@ public class GameView extends View {
         c.drawLine(board.getX(12), board.getY(12), board.getX(14), board.getY(14), blurPaint);
 
 
-        for (int i = 0; i < board.NUM_POSITIONS_OF_BOARD; ++i) {
+        for (int i = 0; i < Board.NUM_POSITIONS_OF_BOARD; ++i) {
             c.drawCircle(board.getX(i), board.getY(i),10f,finalPaint);
            // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
         }

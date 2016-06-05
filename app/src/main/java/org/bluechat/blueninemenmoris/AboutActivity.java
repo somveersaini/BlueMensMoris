@@ -10,7 +10,7 @@ import android.widget.TextView;
 /**
  * Created by Samsaini on 12/05/2016.
  */
-public class about extends Activity {
+public class AboutActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
