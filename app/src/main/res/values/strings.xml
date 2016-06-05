@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">BlueNineMenMoris</string>
+    <string name="blue">Blue</string>
+    <string name="me">Somveer Saini</string>
+    <string name="email">Somveersaini@live.com</string>
+    <string name="phone">8090150580</string>
+    <string name="fb">fb.com/bluedroid15</string>
+    <string name="btnplay">PLAY</string>
+    <string name="settingsBoard">Board Size</string>
+    <string name="settingsSet">Set</string>
+    <string name="hintcolumn">Col</string>
+    <string name="move">Blue Flood</string>
+    <string name="hintrow">Row</string>
+    <string name="btnmygame"> My Game   </string>
+    <string name="btnsolution">DFS Solution</string>
+    <string name="shortdesc">A NP-Hard problem\nBeat the DFS based approach</string>
+    <string name="details">This game starts from the top left corner as starting flood.
+    You gotta make this flood of one color (the whole board) by adding (tapping on) the appropriate neighbour color.\n\n
+    The interesting part is that you have to do this in minimum number of steps.\n\n
+    You are competing with GreedyDFS approach of this NP-Hard problem.\n\n
+    Cheers!!!</string>
+</resources>
