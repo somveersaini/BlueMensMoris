@@ -11,11 +11,15 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.v4.view.VelocityTrackerCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.bluechat.blueninemenmoris.model.AIPlayer;
 import org.bluechat.blueninemenmoris.model.Actor;
@@ -28,6 +32,7 @@ import org.bluechat.blueninemenmoris.model.Move;
 import org.bluechat.blueninemenmoris.model.Player;
 import org.bluechat.blueninemenmoris.model.Token;
 
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 
 public class GameView extends View {
@@ -76,9 +81,15 @@ public class GameView extends View {
     private final int FRAME_RATE = 30;
     private int starttimeinsec = 0;
 
+    private Context context;
+    private Typeface typeface;
+    private Typeface typeface1;
+
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
+
+        this.context = context;
 
         game = new LocalGame();
         p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
@@ -94,6 +105,11 @@ public class GameView extends View {
         bitmap = graphic.getBitmap();
         graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bopp32);
         bitmap2 = graphic.getBitmap();
+
+        typeface = Typeface.createFromAsset(context.getAssets(),
+                "Gasalt-Black.ttf");
+        typeface1 = Typeface.createFromAsset(context.getAssets(),
+                "future.otf");
 
         init();
     }
@@ -439,16 +455,27 @@ public class GameView extends View {
                                 }
                             }
                             if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
+                                String finishLine;
+                                String finishDesc;
                                 if(!game.isTheGameOver()) {
                     				System.out.println("Draw!");
                                     draws++;
+                                    finishLine = "Game Draw";
+                                    finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                                            "\n" +
+                                            " Would you like to play a new game";
+                                    showDialog(finishLine, finishDesc);
                                 } else {
                         			System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                                    if((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
+                                    if((game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
                                         p1Wins++;
+                                        finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
                                     } else {
                                         p2Wins++;
+                                        finishLine = game.getOpponentPlayer().getName() + " Win!!";
                                     }
+                                    finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                                    showDialog(finishLine, finishDesc);
                                 }
                                 numberMoves = 0;
                                 game = new LocalGame();
@@ -555,5 +582,34 @@ public class GameView extends View {
 
     public void setGame(LocalGame game) {
         this.game = game;
+    }
+    public void showDialog(String finishline , String finishdesc){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.finished, null);
+        TextView tv1 = (TextView) view.findViewById(R.id.gamename);
+        tv1.setTypeface(typeface1);
+        TextView line = (TextView) view.findViewById(R.id.finishline);
+        line.setTypeface(typeface);
+        line.setText(finishline);
+        TextView desc = (TextView) view.findViewById(R.id.finishdescription);
+        desc.setTypeface(typeface);
+        desc.setText(finishdesc);
+        alertDialogBuilder.setView(view);
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
+        finishnewgame.setTypeface(typeface);
+
+        finishnewgame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //save the achiewments
+
+                alertDialog.cancel();
+            }
+        });
+        //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+        alertDialog.show();
     }
 }
