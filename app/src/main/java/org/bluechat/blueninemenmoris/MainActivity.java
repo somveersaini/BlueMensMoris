@@ -2,6 +2,7 @@ package org.bluechat.blueninemenmoris;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -54,24 +55,30 @@ public class MainActivity extends AppCompatActivity {
 
     Player p1, p2;
 
+    Handler handler;
+    long HANDLER_DELAY = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.activity_main);
-
         typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
 
+        handler = new Handler();
         gameView = (GameView)findViewById(R.id.gameView);
+
+
 
         try {
             game = new LocalGame();
             p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-            p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+            if(getIntent().getBooleanExtra("isAI",false)){
+                p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
+            }else {
+                p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+            }
             game.setPlayers(p1,p2);
             board = game.getGameBoard();
             gameView.setGame(game);
@@ -83,56 +90,98 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initGame(int minimaxDepth) {
-        System.out.println("Player 1: (H)UMAN or (C)PU?");
-        String userInput = "H";
-        userInput = userInput.toUpperCase();
-        Player p1 = null, p2 = null;
-        boolean bothCPU = true;
+    public void aiPlay(long time){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
+                    int boardIndex;
+                    Actor rActor;
+                    if(game.getCurrentGamePhase() == Game.PLACING_PHASE){
+                        boardIndex = p.getIndexToPlacePiece(board);
 
-        try {
-        if(userInput.compareTo("HUMAN") == 0 || userInput.compareTo("H") == 0) {
-            p1 = new HumanPlayer("Miguel", Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER);
-            bothCPU = false;
-        } else if(userInput.compareTo("CPU") == 0 || userInput.compareTo("C") == 0) {
-            p1 = new RandomAIPlayer(Token.PLAYER_1,Game.NUM_PIECES_PER_PLAYER);
-//			p1 = new MinimaxIAPlayer(Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER, minimaxDepth);
-        } else {
-            System.out.println("Command unknown");
-            System.exit(-1);
-        }
 
-        System.out.println("Player 2: (H)UMAN or (C)PU?");
-        userInput = "C";
-        userInput = userInput.toUpperCase();
+                        Actor[] actors = p.getActors();
+                        for (Actor actor : actors) {
+                            if(!actor.isPlaced()){
+                                numberMoves++; // TODO testing
+                                totalMoves++;
+                                p.raiseNumPiecesOnBoard();
+                                actor.setPosxy(board.getX(boardIndex), board.getY(boardIndex));
+                                actor.setPlacedIndex(boardIndex);
+                                break;
+                            }
+                        }
 
-        if(userInput.compareTo("HUMAN") == 0 || userInput.compareTo("H") == 0) {
-            p2 = new HumanPlayer("Miguel", Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
-            bothCPU = false;
-        } else if(userInput.compareTo("CPU") == 0 || userInput.compareTo("C") == 0) {
-//			p2 = new RandomAIPlayer(Token.PLAYER_2,Game.NUM_PIECES_PER_PLAYER);
-            p2 = new MinimaxAIPlayer(Token.PLAYER_2,Game.NUM_PIECES_PER_PLAYER, minimaxDepth-2);
-        } else {
-            System.out.println("Command unknown");
-            System.exit(-1);
-        }
-        } catch (GameException e) {
-            e.printStackTrace();
-        }
-        if(bothCPU) {
-            System.out.println("Number of games: ");
-            userInput = "5";
-            numberGames = Integer.parseInt(userInput.toUpperCase());
-            fixedNumberGames = numberGames;
-        } else {
-            numberGames = 1;
-        }
+                        if(game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
 
-        game = new LocalGame();
-        ((LocalGame)game).setPlayers(p1, p2);
-        gamesStart = System.nanoTime();
+                            if(game.madeAMill(boardIndex, p.getPlayerToken())) {
+                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                                boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                                game.removePiece(boardIndex, opponentPlayer);
+                                rActor = game.getPlayer1().getActorAt(boardIndex);
+                                ++removedPieceP1;
+                                rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                                rActor.setRemoved(true);
+                            }
+                            game.updateCurrentTurnPlayer();
+                        } else {
+                            System.out.println("You can't place a piece there. Try again");
+                        }
+
+                    }else{
+                        int srcIndex, destIndex;
+                        Move move = p.getPieceMove(board, game.getCurrentGamePhase());
+                        srcIndex = move.srcIndex;
+                        destIndex = move.destIndex;
+                        System.out.println("Move piece from "+srcIndex+" to "+destIndex);
+
+                        int result;
+                        if((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
+                            numberMoves++; // TODO testing
+                            totalMoves++;
+                            rActor = p.getActorAt(srcIndex);
+                            rActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
+                            rActor.setPlacedIndex(destIndex);
+                            if(game.madeAMill(destIndex, p.getPlayerToken())) {
+                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                                boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                                game.removePiece(boardIndex, opponentPlayer);
+                                rActor = game.getPlayer1().getActorAt(boardIndex);
+                                ++removedPieceP1;
+                                rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                                rActor.setRemoved(true);
+                            }
+                            game.updateCurrentTurnPlayer();
+                        }
+                        if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
+                            System.out.println(game.isTheGameOver() + " " + numberMoves);
+                            String finishLine;
+                            String finishDesc;
+                            if(!game.isTheGameOver()) {
+                                System.out.println("Draw!");
+                                draws++;
+                                finishLine = "Game Draw";
+                                finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                                        "\n" +
+                                        " Would you like to play a new game";
+                                showDialog(finishLine, finishDesc);
+                            } else {
+                                System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
+                                finishLine = "Android Win!! ";
+                                finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                                showDialog(finishLine, finishDesc);
+                            }
+                            numberMoves = 0;
+                        }
+                    }
+                } catch (GameException e) {
+                    e.printStackTrace();
+                }
+            }
+        },time);
     }
-
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -230,11 +279,7 @@ public class MainActivity extends AppCompatActivity {
                 int x = (int) event.getX();
                 // Log.d("moving", x + " " + y);
                 if (currActor != null ) {
-                    // Log.d("moving", "curractor");
                     currActor.setPosxy(x - offsetX , y - offsetY);
-                    // GameView.myvertex[selectednode].x = x - nodewidth / 2;
-                    // GameView.myvertex[selectednode].y = y - nodeheight / 2;
-
                 }
 
             } else if (action == MotionEvent.ACTION_UP) {
@@ -270,10 +315,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("current game phase", "  ->  " +game.getCurrentGamePhase());
                         boardIndex = mini;
                         if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-                            Log.d("placing phase", "onTouchEvent: removing");
+                           // Log.d("placing phase", "onTouchEvent: removing");
                             try {
                                 if(madeamill){
-                                    Log.d("removing at pos", ""+ mini);
+                                   // Log.d("removing at pos", ""+ mini);
                                     Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
                                     if (game.removePiece(boardIndex, opponentPlayer)) {
                                         game.updateCurrentTurnPlayer();
@@ -292,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
 
                                         currActor.setRemoved(true);
                                         madeamill = false;
+                                        if(game.getCurrentTurnPlayer().isAI()) {
+                                            aiPlay(HANDLER_DELAY);
+                                        }
                                     } else {
                                         System.out.println("You can't remove a piece from there. Try again");
                                     }
@@ -311,6 +359,10 @@ public class MainActivity extends AppCompatActivity {
                                         else {
                                             System.out.println("changed current Player");
                                             game.updateCurrentTurnPlayer();
+
+                                            if(game.getCurrentTurnPlayer().isAI()) {
+                                                aiPlay(HANDLER_DELAY);
+                                            }
                                         }
                                     } else {
                                         System.out.println("You can't place a piece there. Try again");
@@ -321,12 +373,12 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         else{
-                            System.out.println("The pieces are all placed. Starting the fun part... ");
+                            // System.out.println("The pieces are all placed. Starting the fun part... ");
                             try {
                                 if(!game.isTheGameOver() && numberMoves < MAX_MOVES) {
                                     if(madeamill){
                                         boardIndex = currActor.getPlacedIndex();
-                                        Log.d("removing at pos", ""+ mini);
+                                       // Log.d("removing at pos", ""+ mini);
                                         Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
                                         if (game.removePiece(boardIndex, opponentPlayer)) {
                                             game.updateCurrentTurnPlayer();
@@ -345,6 +397,10 @@ public class MainActivity extends AppCompatActivity {
 
                                             currActor.setRemoved(true);
                                             madeamill = false;
+
+                                            if(game.getCurrentTurnPlayer().isAI()) {
+                                                aiPlay(HANDLER_DELAY);
+                                            }
                                         } else {
                                             System.out.println("You can't remove a piece from there. Try again");
                                         }
@@ -366,6 +422,9 @@ public class MainActivity extends AppCompatActivity {
                                             }else {
                                                 System.out.println("changed current Player");
                                                 game.updateCurrentTurnPlayer();
+                                                if(game.getCurrentTurnPlayer().isAI()) {
+                                                    aiPlay(HANDLER_DELAY);
+                                                }
                                             }
                                         } else {
                                             currActor.setPosxy(board.getX(srcIndex), board.getY(srcIndex));
@@ -391,16 +450,16 @@ public class MainActivity extends AppCompatActivity {
                                             finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
                                         } else {
                                             p2Wins++;
-                                            finishLine = game.getOpponentPlayer().getName() + " Win!!";
+                                            finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
                                         }
                                         finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
                                         showDialog(finishLine, finishDesc);
                                     }
                                     numberMoves = 0;
                                     game = new LocalGame();
-//                                p1.reset();
-//                                p2.reset();
-//                                game.setPlayers(p1, p2);
+                                    p1.reset();
+                                    p2.reset();
+                                    game.setPlayers(p1, p2);
                                 }
                             }catch (GameException e) {
                                 e.printStackTrace();
@@ -424,11 +483,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
-    public boolean onTouchEvent(MotionEvent event) {
 
-
-        return true;
-    }
     public void showDialog(String finishline , String finishdesc){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

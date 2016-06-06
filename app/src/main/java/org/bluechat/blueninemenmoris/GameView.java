@@ -68,7 +68,7 @@ public class GameView extends View {
 
         game = new LocalGame();
         Player p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-        Player p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+        Player p2 = new HumanPlayer("aac", Token.PLAYER_2,9);
         game.setPlayers(p1,p2);
         board = game.getGameBoard();
 

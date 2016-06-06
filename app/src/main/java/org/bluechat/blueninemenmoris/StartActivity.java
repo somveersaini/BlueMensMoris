@@ -19,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
         Typeface typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
         ((Button) findViewById(R.id.play)).setTypeface(typeface);
+        ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
     }
 
     @Override
@@ -67,13 +68,16 @@ public class StartActivity extends AppCompatActivity {
         switch(id) {
             case R.id.play:
                 Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("isAI", false);
                 startActivity(intent);
                 break;
             case R.id.aiplayer:
-                startActivity(new Intent(this, AiMainActivity.class));
+                intent = new Intent(this, MainActivity.class);
+                intent.putExtra("isAI", true);
+                startActivity(intent);
                 break;
             case R.id.setting:
-                startActivity(new Intent(this, AiMainActivity.class));
+               // startActivity(new Intent(this, AiMainActivity.class));
                 break;
             case R.id.help:
                 startActivity(new Intent(this, HelpActivity.class));
