@@ -37,79 +37,46 @@ import java.util.jar.Attributes;
 
 public class GameView extends View {
 
-
     public int time = 0;
-    public static boolean focus = false;
     private Handler h;
-    private int selectednode;
-    private int starttime = 0, currenttime = 0;
-    Actor currActor = null;
 
-    private VelocityTracker mVelocityTracker = null;
-    private int offsetX;
-    private int offsetY;
 
     private Paint testPaint;
     private Paint textPaint;                // for painting the text
     private Paint finalPaint;
     private Paint blurPaint;
+
     private int viewHeight;
     private int viewWidth;
-    private int firstSquareWidth;
-    private int secondSquareWidth;
-    private int thirdSquareWidth;
+
     private int squareSpace;
     private int removedx; // for x of removed piece
     private int removedSpace; //for spacing the pieces
-    private int squareStart; //from where square start
     private Board board;     //gameboard
     private LocalGame game;   //localgame
-    private boolean madeamill = false;
-
-    public static final int MAX_MOVES = 150;
-    public static int totalMoves = 0;
-    private int numberGames = 1, fixedNumberGames = 1, numberMoves = 0, draws = 0, p1Wins = 0, p2Wins = 0;
     private  long gamesStart;
-    private int removedPieceP1, removedPieceP2;
 
     private BitmapDrawable graphic;
     Bitmap bitmap, bitmap2;
-    int wt;
-    int ht;
-    Player p1,p2;
+    int wt, ht;
 
     private final int FRAME_RATE = 30;
     private int starttimeinsec = 0;
 
-    private Context context;
-    private Typeface typeface;
-    private Typeface typeface1;
-
-
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
 
-        this.context = context;
-
         game = new LocalGame();
-        p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-        p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+        Player p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
+        Player p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
         game.setPlayers(p1,p2);
         board = game.getGameBoard();
 
-        gamesStart = System.nanoTime();
-        h = new Handler();
-        starttimeinsec = (int) System.currentTimeMillis() / 1000;
 
         graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bdots32);
         bitmap = graphic.getBitmap();
         graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bopp32);
         bitmap2 = graphic.getBitmap();
-
-        typeface = Typeface.createFromAsset(context.getAssets(),
-                "Gasalt-Black.ttf");
-        typeface1 = Typeface.createFromAsset(context.getAssets(),
-                "future.otf");
 
         init();
     }
@@ -118,6 +85,11 @@ public class GameView extends View {
 
         wt = bitmap.getWidth()/2;
         ht = bitmap.getHeight()/2;
+
+        gamesStart = System.nanoTime();
+        h = new Handler();
+        starttimeinsec = (int) System.currentTimeMillis() / 1000;
+
         // ColorFilter colorFilter = new LightingColorFilter(Color.WHITE, Color.parseColor("#1e90ff"));
         //EmbossMaskFilter embossMaskFilter = new EmbossMaskFilter(new float[]{0,0,0},0.5f,10, 3f);
 
@@ -150,33 +122,6 @@ public class GameView extends View {
         textPaint.setTypeface(Typeface.SERIF);
         textPaint.setAntiAlias(true);
         textPaint.setShadowLayer(9f, 3, 3, Color.parseColor("#2090ff"));
-
-//        switch (Settings.theme) {
-//            case Constants.MAGNETA:
-//                testPaint.setColor(Color.MAGENTA);
-//                textPaint.setColor(Color.MAGENTA);
-//                this.setBackgroundColor(Color.WHITE);
-//                break;
-//
-//            case Constants.WHITE:
-//                testPaint.setColor(Color.GRAY);
-//                textPaint.setColor(Color.MAGENTA);
-//                this.setBackgroundColor(Color.WHITE);
-//                break;
-//
-//            case Constants.BLACK:
-//                testPaint.setColor(Color.WHITE);
-//                textPaint.setColor(Color.WHITE);
-//                this.setBackgroundColor(Color.BLACK);
-//                break;
-//
-//            case Constants.BLUE:
-//                testPaint.setColor(Color.WHITE);
-//                blurPaint.setColor(Color.BLUE);
-//                textPaint.setColor(Color.WHITE);
-//                this.setBackgroundColor(Color.parseColor("#2196fe"));
-//                break;
-//        }
     }
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld){
@@ -187,25 +132,37 @@ public class GameView extends View {
         Log.d("gameview", viewHeight +  " " + viewWidth);
 
         int  squareStartY =   (viewHeight - viewWidth)/2;
+        int squareStartX = viewWidth / 8;
+        board.setPosXY(squareStartX,squareStartY);
 
 
-        squareStart = viewWidth/8;
         squareSpace = squareStartY;
-
-        board.setPosXY(squareStart,squareStartY);
 
         int startPieceX = viewWidth/10;
         int startPieceY1 = squareStartY/2;
         int startPieceY2 = viewWidth + 3*startPieceY1;
         game.getPlayer1().setActors(startPieceX,startPieceY1);
         game.getPlayer2().setActors(startPieceX,startPieceY2);
+
         removedSpace = viewWidth/10;
         removedx  = bitmap.getWidth()/2 + 1;
-        if(squareStart > 4*removedx){
-            removedx = squareStart/2;
+        if(squareStartX > 4*removedx){
+            removedx = squareStartX /2;
         }
 
 
+    }
+    public  int getP1rx(){
+        return removedx;
+    }
+    public  int getP2rx(){
+        return viewWidth - removedx;
+    }
+    public int getP1ry(int removedPieceP1){
+        return (squareSpace) + ((removedPieceP1 + 1) * removedSpace);
+    }
+    public int getP2ry(int removedPieceP2){
+        return (viewWidth + squareSpace) - (removedPieceP2 * removedSpace);
     }
 
     private Runnable r = new Runnable() {
@@ -214,297 +171,6 @@ public class GameView extends View {
             invalidate();
         }
     };
-
-
-    public boolean onTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-        int index = event.getActionIndex();
-        int pointerId = event.getPointerId(index);
-
-
-        if (action == MotionEvent.ACTION_DOWN) {
-
-            currenttime = (int) Math.abs(System.currentTimeMillis());
-            currenttime = Math.abs(currenttime);
-            // System.out.println(currenttime + " " + starttime);
-            if (Math.abs(currenttime - starttime) < 300) {
-                // showsolution();
-            }
-            if (mVelocityTracker == null) {
-                mVelocityTracker = VelocityTracker.obtain();
-            } else {
-                mVelocityTracker.clear();
-            }
-            mVelocityTracker.addMovement(event);
-
-            int y = (int) event.getY();
-            int x = (int) event.getX();
-
-            int min = 10000;
-
-
-            if (madeamill) {
-                //Token opponentPlayer = (game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-
-                Actor[] actorscurrent = game.getOpponentPlayer().getActors();
-                for (Actor actor : actorscurrent) {
-                    if(!actor.isRemoved()) {
-                        int t1 = y - (actor.getPosy());
-                        int t2 = x - (actor.getPosx());
-                        int temp = (int) Math.sqrt(Math.abs(t1 * t1 + t2 * t2));
-                        if (temp < min) {
-                            min = temp;
-                            offsetY = t1;
-                            offsetX = t2;
-                            currActor = actor;
-                            actor.setAvailableToRemove(true);
-                        }
-                    }
-                }
-            }else {
-                Actor[] actorscurrent = game.getCurrentTurnPlayer().getActors();
-                for (Actor actor : actorscurrent) {
-                    if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-                        if (!actor.isRemoved() && !actor.isPlaced()) {
-                            int t1 = y - (actor.getPosy());
-                            int t2 = x - (actor.getPosx());
-                            int temp = (int) Math.sqrt(Math.abs(t1 * t1 + t2 * t2));
-                            if (temp < min) {
-                                min = temp;
-                                offsetY = t1;
-                                offsetX = t2;
-                                currActor = actor;
-                            }
-                        }
-                    }else {
-                        if (!actor.isRemoved()) {
-                            int t1 = y - (actor.getPosy());
-                            int t2 = x - (actor.getPosx());
-                            int temp = (int) Math.sqrt(Math.abs(t1 * t1 + t2 * t2));
-                            if (temp < min) {
-                                min = temp;
-                                offsetY = t1;
-                                offsetX = t2;
-                                currActor = actor;
-                            }
-                        }
-                    }
-                }
-            }
-            Log.d("currentmin", " " + min);
-            if (min > 80 ) {
-                currActor = null;
-            }else {
-              //  Log.d("selected opponent piece", " " + mini);
-            }
-            starttime = currenttime;
-
-        } else if (action == MotionEvent.ACTION_MOVE) {
-            mVelocityTracker.addMovement(event);
-            mVelocityTracker.computeCurrentVelocity(1000);
-            int xvel = (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-            int yvel = (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, pointerId);
-
-            int vel = (int) Math.sqrt(xvel * xvel + yvel * yvel);
-
-            int y = (int) event.getY();
-            int x = (int) event.getX();
-           // Log.d("moving", x + " " + y);
-            if (currActor != null ) {
-               // Log.d("moving", "curractor");
-                currActor.setPosxy(x - offsetX , y - offsetY);
-                // GameView.myvertex[selectednode].x = x - nodewidth / 2;
-                // GameView.myvertex[selectednode].y = y - nodeheight / 2;
-
-            }
-
-        } else if (action == MotionEvent.ACTION_UP) {
-            Log.d("action", "up");
-            int min = 1000;
-            int mini = -1;
-            if(currActor != null) {
-                if(madeamill){
-                    mini = currActor.getPlacedIndex();
-                    min = 1;
-                }
-                else {
-                    for (int i = 0; i < Board.NUM_POSITIONS_OF_BOARD; i++) {
-                        try {
-                            if (board.positionIsAvailable(i)) {
-                                int t1 = board.getY(i) - (currActor.getPosy());
-                                int t2 = board.getX(i) - (currActor.getPosx());
-                                int temp = (int) Math.sqrt(Math.abs(t1 * t1 + t2 * t2));
-                                if (temp < min) {
-                                    min = temp;
-                                    mini = i;
-                                }
-                            }
-                        } catch (GameException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                Player p = game.getCurrentTurnPlayer();
-                int boardIndex;
-                if (min < 80 && mini != -1) {
-                    Log.d("current game phase", "  ->  " +game.getCurrentGamePhase());
-                    boardIndex = mini;
-                    if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-                        Log.d("placing phase", "onTouchEvent: removing");
-                        try {
-                            if(madeamill){
-                                Log.d("removing at pos", ""+ mini);
-                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                                if (game.removePiece(boardIndex, opponentPlayer)) {
-                                    game.updateCurrentTurnPlayer();
-                                    System.out.println("removed piece at " + boardIndex);
-
-                                    if(opponentPlayer == Token.PLAYER_1){
-                                        ++removedPieceP1;
-                                        currActor.setPosxy(removedx, (squareSpace) + ((removedPieceP1 + 1) * removedSpace));
-                                        Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
-
-                                    }else {
-                                        ++removedPieceP2;
-                                        currActor.setPosxy((viewWidth - removedx), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
-                                        Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
-                                    }
-
-                                    currActor.setRemoved(true);
-                                    madeamill = false;
-                                } else {
-                                    System.out.println("You can't remove a piece from there. Try again");
-                                }
-                            } else {
-                                if (game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
-                                    Log.d("selected", "pos " + mini);
-                                    numberMoves++; // TODO testing
-                                    totalMoves++;
-                                    p.raiseNumPiecesOnBoard();
-                                    currActor.setPosxy(board.getX(mini), board.getY(mini));
-                                    currActor.setPlacedIndex(mini);
-
-                                    if (game.madeAMill(boardIndex, p.getPlayerToken())) {
-                                        madeamill = true;
-                                        System.out.println("You made a mill. You can remove a piece of your oponent: ");
-                                    }
-                                    else {
-                                        System.out.println("changed current Player");
-                                        game.updateCurrentTurnPlayer();
-                                    }
-                                } else {
-                                    System.out.println("You can't place a piece there. Try again");
-                                }
-                            }
-                        } catch (GameException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else{
-                        System.out.println("The pieces are all placed. Starting the fun part... ");
-                        try {
-                            if(!game.isTheGameOver() && numberMoves < MAX_MOVES) {
-                                if(madeamill){
-                                    boardIndex = currActor.getPlacedIndex();
-                                    Log.d("removing at pos", ""+ mini);
-                                    Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                                    if (game.removePiece(boardIndex, opponentPlayer)) {
-                                        game.updateCurrentTurnPlayer();
-                                        System.out.println("removed piece at " + boardIndex);
-
-                                        if(opponentPlayer == Token.PLAYER_1){
-                                            ++removedPieceP1;
-                                            currActor.setPosxy(removedx, (squareSpace) + (removedPieceP1 * removedSpace));
-                                            Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + (removedPieceP1 * removedSpace));
-
-                                        }else {
-                                            ++removedPieceP2;
-                                            currActor.setPosxy((viewWidth - removedx), (viewWidth + squareSpace) - (removedPieceP2 * removedSpace));
-                                            Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
-                                        }
-
-                                        currActor.setRemoved(true);
-                                        madeamill = false;
-                                    } else {
-                                        System.out.println("You can't remove a piece from there. Try again");
-                                    }
-                                }
-                                else {
-                                    int srcIndex, destIndex;
-                                    srcIndex = currActor.getPlacedIndex();
-                                    destIndex = mini;
-                                    System.out.println("Move piece from "+srcIndex+" to "+destIndex);
-
-                                    int result;
-                                    if((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
-                                        numberMoves++; // TODO testing
-                                        totalMoves++;
-                                        currActor.setPosxy(board.getX(mini), board.getY(mini));
-                                        currActor.setPlacedIndex(mini);
-                                        if(game.madeAMill(destIndex, p.getPlayerToken())) {
-                                            madeamill = true;
-                                        }else {
-                                            System.out.println("changed current Player");
-                                            game.updateCurrentTurnPlayer();
-                                        }
-                                    } else {
-                                        currActor.setPosxy(board.getX(srcIndex), board.getY(srcIndex));
-                                        System.out.println("Invalid move. Error code: "+result);
-                                    }
-                                }
-                            }
-                            if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
-                                String finishLine;
-                                String finishDesc;
-                                if(!game.isTheGameOver()) {
-                    				System.out.println("Draw!");
-                                    draws++;
-                                    finishLine = "Game Draw";
-                                    finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                            "\n" +
-                                            " Would you like to play a new game";
-                                    showDialog(finishLine, finishDesc);
-                                } else {
-                        			System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                                    if((game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
-                                        p1Wins++;
-                                        finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
-                                    } else {
-                                        p2Wins++;
-                                        finishLine = game.getOpponentPlayer().getName() + " Win!!";
-                                    }
-                                    finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                                    showDialog(finishLine, finishDesc);
-                                }
-                                numberMoves = 0;
-                                game = new LocalGame();
-                                p1.reset();
-                                p2.reset();
-                                game.setPlayers(p1, p2);
-                            }
-                        }catch (GameException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else {
-                    if(currActor.getPlacedIndex() == -1){
-                        currActor.setToPreviousPosition();
-                    }
-                    else {
-                        currActor.setPosxy(board.getX(currActor.getPlacedIndex()),board.getY(currActor.getPlacedIndex()));
-                    }
-                }
-            }
-            else{
-                currActor = null;
-            }
-
-        }
-
-        return true;
-    }
 
     protected void onDraw(Canvas c) {
 
@@ -516,8 +182,6 @@ public class GameView extends View {
        // }
         int min = time / 60;
         int sec = time % 60;
-
-
 
 
         c.drawLine(board.getX(0), board.getY(0), board.getX(2), board.getY(2), blurPaint);
@@ -556,10 +220,6 @@ public class GameView extends View {
             c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht , null);
         }
 
-
-
-
-
         c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
         h.postDelayed(r, FRAME_RATE);
@@ -582,34 +242,7 @@ public class GameView extends View {
 
     public void setGame(LocalGame game) {
         this.game = game;
+        this.board = game.getGameBoard();
     }
-    public void showDialog(String finishline , String finishdesc){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.finished, null);
-        TextView tv1 = (TextView) view.findViewById(R.id.gamename);
-        tv1.setTypeface(typeface1);
-        TextView line = (TextView) view.findViewById(R.id.finishline);
-        line.setTypeface(typeface);
-        line.setText(finishline);
-        TextView desc = (TextView) view.findViewById(R.id.finishdescription);
-        desc.setTypeface(typeface);
-        desc.setText(finishdesc);
-        alertDialogBuilder.setView(view);
-        final AlertDialog alertDialog = alertDialogBuilder.create();
-        //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
-        finishnewgame.setTypeface(typeface);
 
-        finishnewgame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //save the achiewments
-
-                alertDialog.cancel();
-            }
-        });
-        //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
-        alertDialog.show();
-    }
 }

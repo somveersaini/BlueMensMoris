@@ -55,9 +55,6 @@ public class AiGameView extends View {
     private Paint blurPaint;
     private int viewHeight;
     private int viewWidth;
-    private int firstSquareWidth;
-    private int secondSquareWidth;
-    private int thirdSquareWidth;
     private int squareSpace;
     private int removedx; // for x of removed piece
     private int removedSpace; //for spacing the pieces
