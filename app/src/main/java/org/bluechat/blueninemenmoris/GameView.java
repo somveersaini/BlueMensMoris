@@ -10,18 +10,11 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
-import android.support.v4.view.VelocityTrackerCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
-import org.bluechat.blueninemenmoris.model.AIPlayer;
+
 import org.bluechat.blueninemenmoris.model.Actor;
 import org.bluechat.blueninemenmoris.model.Board;
 import org.bluechat.blueninemenmoris.model.Game;
@@ -133,14 +126,15 @@ public class GameView extends View {
 
         int  squareStartY =   (viewHeight - viewWidth)/2;
         int squareStartX = viewWidth / 8;
+
         board.setPosXY(squareStartX,squareStartY);
 
 
         squareSpace = squareStartY;
 
         int startPieceX = viewWidth/10;
-        int startPieceY1 = squareStartY/2;
-        int startPieceY2 = viewWidth + 3*startPieceY1;
+        int startPieceY1 = squareStartY;
+        int startPieceY2 = viewWidth + startPieceY1;
         game.getPlayer1().setActors(startPieceX,startPieceY1);
         game.getPlayer2().setActors(startPieceX,startPieceY2);
 
@@ -220,7 +214,7 @@ public class GameView extends View {
             c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht , null);
         }
 
-        c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
+       // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
         h.postDelayed(r, FRAME_RATE);
     }
