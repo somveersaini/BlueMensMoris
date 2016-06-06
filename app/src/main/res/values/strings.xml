@@ -7,6 +7,7 @@
     <string name="fb">fb.com/bluedroid15</string>
     <string name="btnplay">PLAY</string>
     <string name="btnplayai">PLAY with Android</string>
+    <string name="netPlay">Network Game</string>
     <string name="settingsBoard">Board Size</string>
     <string name="settingsSet">Set</string>
     <string name="hintcolumn">Col</string>

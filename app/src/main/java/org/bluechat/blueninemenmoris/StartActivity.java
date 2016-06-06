@@ -20,6 +20,7 @@ public class StartActivity extends AppCompatActivity {
                 "Gasalt-Black.ttf");
         ((Button) findViewById(R.id.play)).setTypeface(typeface);
         ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
+        ((Button) findViewById(R.id.netPlay)).setTypeface(typeface);
     }
 
     @Override
@@ -78,6 +79,9 @@ public class StartActivity extends AppCompatActivity {
                 break;
             case R.id.setting:
                // startActivity(new Intent(this, AiMainActivity.class));
+                break;
+            case R.id.netPlay:
+                startActivity(new Intent(this, NetMainActivity.class));
                 break;
             case R.id.help:
                 startActivity(new Intent(this, HelpActivity.class));

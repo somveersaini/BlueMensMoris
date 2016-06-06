@@ -15,10 +15,10 @@
         android:layout_weight="1"
         android:text="Somveer saini"/>
 
-    <org.bluechat.blueninemenmoris.GameView
+    <org.bluechat.blueninemenmoris.NetGameView
         android:layout_width="match_parent"
-        android:background="@drawable/gamebg"
-        android:id="@+id/gameView"
+        android:background="@drawable/roundgridtextbg"
+        android:id="@+id/netGameView"
         android:layout_below="@+id/top"
         android:layout_height="0dp"
         android:layout_weight="10"/>
