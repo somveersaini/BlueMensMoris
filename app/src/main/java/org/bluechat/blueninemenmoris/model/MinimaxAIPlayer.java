@@ -129,6 +129,9 @@ public class MinimaxAIPlayer extends AIPlayer {
 
 			// if there are different moves with the same score it returns one of them randomly
 			List<Move> bestMoves = new ArrayList<Move>();
+			if(bestMoves.isEmpty()){
+				return null;
+			}
 			int bestScore = moves.get(0).score;
 			bestMoves.add(moves.get(0));
 			for(int i = 1; i < moves.size(); i++) {

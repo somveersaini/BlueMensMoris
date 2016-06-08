@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/gamehelp"
     android:padding="16dp"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/gamebg">
 
     <TextView
         android:layout_width="match_parent"

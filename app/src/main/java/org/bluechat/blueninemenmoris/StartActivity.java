@@ -84,10 +84,10 @@ public class StartActivity extends AppCompatActivity {
                 startActivity(new Intent(this, NetMainActivity.class));
                 break;
             case R.id.help:
-                startActivity(new Intent(this, HelpActivity.class));
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
             case R.id.about:
-                startActivity(new Intent(this, AboutActivity.class));
+                startActivity(new Intent(this, HelpActivity.class));
                 break;
             case R.id.trophy:
                 startActivity(new Intent(this, AcheivementsActivity.class));

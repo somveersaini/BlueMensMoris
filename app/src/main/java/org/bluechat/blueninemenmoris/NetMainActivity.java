@@ -1,34 +1,32 @@
 package org.bluechat.blueninemenmoris;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.bluechat.blueninemenmoris.model.AIPlayer;
+import com.esotericsoftware.minlog.Log;
+
 import org.bluechat.blueninemenmoris.model.Actor;
 import org.bluechat.blueninemenmoris.model.Board;
 import org.bluechat.blueninemenmoris.model.Game;
 import org.bluechat.blueninemenmoris.model.GameException;
 import org.bluechat.blueninemenmoris.model.HumanPlayer;
-import org.bluechat.blueninemenmoris.model.LocalGame;
-import org.bluechat.blueninemenmoris.model.MinimaxAIPlayer;
 import org.bluechat.blueninemenmoris.model.Move;
 import org.bluechat.blueninemenmoris.model.NetworkGame;
 import org.bluechat.blueninemenmoris.model.Player;
-import org.bluechat.blueninemenmoris.model.RandomAIPlayer;
 import org.bluechat.blueninemenmoris.model.Token;
 import org.bluechat.blueninemenmoris.net.GameClient;
 import org.bluechat.blueninemenmoris.net.GameServer;
@@ -40,6 +38,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+
+
 
 public class NetMainActivity extends AppCompatActivity {
     private Board board;
@@ -71,69 +71,40 @@ public class NetMainActivity extends AppCompatActivity {
     GameClient gc = null;
 
     Player p = null;
+    int numberTries = 3;
+    boolean firstTry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_net_main);
         typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
-
+        game = new NetworkGame();
         handler = new Handler();
         gameView = (NetGameView) findViewById(R.id.netGameView);
+        setContentView(R.layout.connect);
 
         //network connect
-        NetworkGame game = new NetworkGame();
 
 
-        try {
-            gs = new GameServer();
-            gc = new GameClient(Token.PLAYER_1);
-
-            // the player with the server is always PLAYER_1 (not necessarily the first one to play)
-            if(gs != null) {
-                p = new HumanPlayer("Miguel",Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER);
-            } else {
-                p = new HumanPlayer("Aida",Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
-            }
-
-            game.setPlayer(p);
-            int numberTries = 3;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        // display IP addresses
-        Enumeration<NetworkInterface> nets;
-        try {
-            nets = NetworkInterface.getNetworkInterfaces();
-            for (NetworkInterface netint : Collections.list(nets)) {
-                Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
-                for (InetAddress inetAddress : Collections.list(inetAddresses)) {
-                    System.out.println(inetAddress.toString());
-                }
-            }
-        } catch (SocketException e) { e.printStackTrace(); }
-
-
-        try {
-            p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-            if(getIntent().getBooleanExtra("isAI",false)){
-                p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
-            }else {
-                p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
-            }
-           // game.setPlayers(p1,p2);
-            board = game.getGameBoard();
-            gameView.setGame(game);
-        } catch (GameException e) {
-            e.printStackTrace();
-        }
-
-        gameView.setOnTouchListener(gameListner);
+//        try {
+//            p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
+//            if(getIntent().getBooleanExtra("isAI",false)){
+//                p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
+//            }else {
+//                p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+//            }
+//           // game.setPlayers(p1,p2);
+//            board = game.getGameBoard();
+//            gameView.setGame(game);
+//        } catch (GameException e) {
+//            e.printStackTrace();
+//        }
+//
+//        gameView.setOnTouchListener(gameListner);
 
     }
 
@@ -214,7 +185,7 @@ public class NetMainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                Log.d("currentmin", " " + min);
+                System.out.println("currentmin " + min);
                 if (min > 80 ) {
                     currActor = null;
                 }else {
@@ -238,7 +209,7 @@ public class NetMainActivity extends AppCompatActivity {
                 }
 
             } else if (action == MotionEvent.ACTION_UP) {
-                Log.d("action", "up");
+                android.util.Log.d("action", "up");
                 int min = 1000;
                 int mini = -1;
                 if(currActor != null) {
@@ -267,7 +238,7 @@ public class NetMainActivity extends AppCompatActivity {
                     Player p = game.getPlayer();
                     int boardIndex;
                     if (min < 80 && mini != -1) {
-                        Log.d("current game phase", "  ->  " +game.getCurrentGamePhase());
+                        android.util.Log.d("current game phase", "  ->  " +game.getCurrentGamePhase());
                         boardIndex = mini;
                         if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
                             try {
@@ -277,7 +248,7 @@ public class NetMainActivity extends AppCompatActivity {
                                         // ask for the index of the opponent piece
                                         System.out.println("You made a mill. You can remove a piece of your oponent. Remove piece at: " + boardIndex);
 
-                                        // validate removing with the server
+                                        // validate removing with the connect
                                         if (gc.validatePieceRemoving(boardIndex)) {
 
                                             // validate removing locally
@@ -299,7 +270,7 @@ public class NetMainActivity extends AppCompatActivity {
                                         // ask user input
                                         System.out.println(player.getName() + " place piece on: " + boardIndex);
 
-                                        // validate placing with the server
+                                        // validate placing with the connect
                                         if (gc.validatePiecePlacing(boardIndex)) {
 
                                             // validate placing locally
@@ -311,7 +282,7 @@ public class NetMainActivity extends AppCompatActivity {
                                                 game.setTurn(false);
                                             }
                                         } else {
-                                            System.out.println("The server has considered that move invalid. Try again");
+                                            System.out.println("The connect has considered that move invalid. Try again");
                                         }
                                     }
                                 }
@@ -460,5 +431,145 @@ public class NetMainActivity extends AppCompatActivity {
         });
         //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
         alertDialog.show();
+    }
+
+    public void buttonGame(View view) throws IOException, GameException {
+        int id  = view.getId();
+        if(id == R.id.servergame){
+            initServerGame();
+        }
+        if(id == R.id.clientgame){
+            initClientGame();
+        }
+    }
+
+    private void initServerGame() throws GameException, IOException {
+        gs = new GameServer();
+        gc = new GameClient(Token.PLAYER_1);
+
+        // display IP addresses
+        Enumeration<NetworkInterface> nets;
+        Enumeration<InetAddress> inetAddresses;
+        try {
+            nets = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netint : Collections.list(nets)) {
+                inetAddresses = netint.getInetAddresses();
+                for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+                    com.esotericsoftware.minlog.Log.info(inetAddress.toString());
+                    System.out.println(inetAddress.getHostAddress());
+                }
+            }
+        } catch (SocketException e) { e.printStackTrace(); }
+        p = new HumanPlayer("Miguel",Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER);
+        game.setPlayer(p);
+
+        firstTry = true;
+
+        new AsyncCaller().execute();
+
+    }
+
+    private class AsyncCaller extends AsyncTask<Void, Void, Void>
+    {
+        ProgressDialog pdLoading = new ProgressDialog(NetMainActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("\tLoading...");
+            pdLoading.show();
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            try {
+                gc.connectToServer("localhost");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while(true) {
+                if(gs.hasConnectionEstablished()) {
+                    break;
+                }
+                if(firstTry) {
+                    Log.info("Server initialized. Waiting for connection from GameClient of this computer");
+                    firstTry = false;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            //this method will be running on UI thread
+            pdLoading.dismiss();
+            setContentView(R.layout.activity_net_main);
+        }
+    }
+    private void initClientGame() throws GameException {
+
+        gc = new GameClient(Token.PLAYER_2);
+        p = new HumanPlayer("Aida",Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
+        game.setPlayer(p);
+
+        new AsyncConnect().execute();
+
+    }
+    private class AsyncConnect extends AsyncTask<Void, Void, Void>
+    {
+        ProgressDialog pdLoading = new ProgressDialog(NetMainActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("\tconnecting...");
+            pdLoading.show();
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+
+            while(true) {
+                try {
+                    System.out.println("Connect to GameServer at IP address: 172.19.13.33");
+                    gc.connectToServer("172.19.13.33");
+                    break;
+                } catch (Exception e) {
+                    Log.info("No GameServer detected!");
+                    if(--numberTries == 0) {
+                        System.exit(-1);
+                    }
+                    try {
+                        Thread.sleep(600);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    Log.info("Trying another connection.");
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            //this method will be running on UI thread
+            pdLoading.dismiss();
+            setContentView(R.layout.activity_net_main);
+        }
     }
 }

@@ -53,7 +53,7 @@ public class GameView extends View {
     Bitmap bitmap, bitmap2;
     int wt, ht;
 
-    private final int FRAME_RATE = 30;
+    private final int FRAME_RATE = 20;
     private int starttimeinsec = 0;
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
@@ -158,7 +158,9 @@ public class GameView extends View {
     public int getP2ry(int removedPieceP2){
         return (viewWidth + squareSpace) - (removedPieceP2 * removedSpace);
     }
-
+    public Bitmap getBitmap(){
+        return bitmap;
+    }
     private Runnable r = new Runnable() {
 
         public void run() {
@@ -215,6 +217,7 @@ public class GameView extends View {
         }
 
        // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
+
 
         h.postDelayed(r, FRAME_RATE);
     }

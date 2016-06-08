@@ -58,7 +58,7 @@ public class NetGameView extends View {
         game = new NetworkGame();
         Player p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
         Player p2 = new HumanPlayer("aac", Token.PLAYER_2,9);
-       // game.setPlayers(p1,p2);
+        game.setPlayer(p1);
         board = game.getGameBoard();
 
 

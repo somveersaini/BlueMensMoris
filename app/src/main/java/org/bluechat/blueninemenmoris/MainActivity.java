@@ -1,8 +1,11 @@
 package org.bluechat.blueninemenmoris;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -55,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
 
     Player p1, p2;
 
+    Actor rActor;
+    Actor actionActor;
+
     Handler handler;
-    long HANDLER_DELAY = 100;
+    long HANDLER_DELAY = 10;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,97 +96,121 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void aiPlay(long time){
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
-                    int boardIndex;
-                    Actor rActor;
-                    if(game.getCurrentGamePhase() == Game.PLACING_PHASE){
-                        boardIndex = p.getIndexToPlacePiece(board);
+    public void aiPlay(){
+        try {
+            MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
+            int boardIndex;
 
+            if(game.getCurrentGamePhase() == Game.PLACING_PHASE){
+                boardIndex = p.getIndexToPlacePiece(board);
 
-                        Actor[] actors = p.getActors();
-                        for (Actor actor : actors) {
-                            if(!actor.isPlaced()){
-                                numberMoves++; // TODO testing
-                                totalMoves++;
-                                p.raiseNumPiecesOnBoard();
-                                actor.setPosxy(board.getX(boardIndex), board.getY(boardIndex));
-                                actor.setPlacedIndex(boardIndex);
-                                break;
-                            }
+                Actor[] actors = p.getActors();
+                for (Actor actor : actors) {
+                    if(!actor.isPlaced()){
+                        numberMoves++; // TODO testing
+                        totalMoves++;
+                        p.raiseNumPiecesOnBoard();
+                        int x2 = board.getX(boardIndex);
+                        int x1 = actor.getPosx();
+
+                        int y2 = board.getY(boardIndex);
+                        int y1 = actor.getPosy();
+
+                        int pS;
+                        int px = (x2 - x1);
+                        int py = (y2 - y1);
+                        if(Math.abs(px)  > Math.abs(py)){
+                            pS = Math.abs(py);
+                        }
+                        else {
+                            pS = Math.abs(px);
                         }
 
-                        if(game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
-
-                            if(game.madeAMill(boardIndex, p.getPlayerToken())) {
-                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                                boardIndex = p.getIndexToRemovePieceOfOpponent(board);
-                                game.removePiece(boardIndex, opponentPlayer);
-                                rActor = game.getPlayer1().getActorAt(boardIndex);
-                                ++removedPieceP1;
-                                rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                                rActor.setRemoved(true);
-                            }
-                            game.updateCurrentTurnPlayer();
-                        } else {
-                            System.out.println("You can't place a piece there. Try again");
+                        float ySlope = py/pS;
+                        float xSlope = px/pS;
+                        actionActor = actor;
+                        for (int i = 1; i <= pS; i += 2) {
+                           // actor.setPosxy(x1 + i*xSlope, (int) (y1 + i*ySlope));
+                            Log.d("cordinates ","x : "+ (x1+i*xSlope) +"   y: "+(y1 + i*ySlope));
+                            new Asyncaiplay().execute((int)(x1 + i*xSlope), (int) (y1 + i*ySlope));
+                           // gameView.invalidate();
                         }
 
-                    }else{
-                        int srcIndex, destIndex;
-                        Move move = p.getPieceMove(board, game.getCurrentGamePhase());
-                        srcIndex = move.srcIndex;
-                        destIndex = move.destIndex;
-                        System.out.println("Move piece from "+srcIndex+" to "+destIndex);
-
-                        int result;
-                        if((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
-                            numberMoves++; // TODO testing
-                            totalMoves++;
-                            rActor = p.getActorAt(srcIndex);
-                            rActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
-                            rActor.setPlacedIndex(destIndex);
-                            if(game.madeAMill(destIndex, p.getPlayerToken())) {
-                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                                boardIndex = p.getIndexToRemovePieceOfOpponent(board);
-                                game.removePiece(boardIndex, opponentPlayer);
-                                rActor = game.getPlayer1().getActorAt(boardIndex);
-                                ++removedPieceP1;
-                                rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                                rActor.setRemoved(true);
-                            }
-                            game.updateCurrentTurnPlayer();
-                        }
-                        if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
-                            System.out.println(game.isTheGameOver() + " " + numberMoves);
-                            String finishLine;
-                            String finishDesc;
-                            if(!game.isTheGameOver()) {
-                                System.out.println("Draw!");
-                                draws++;
-                                finishLine = "Game Draw";
-                                finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                        "\n" +
-                                        " Would you like to play a new game";
-                                showDialog(finishLine, finishDesc);
-                            } else {
-                                System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                                finishLine = "Android Win!! ";
-                                finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                                showDialog(finishLine, finishDesc);
-                            }
-                            numberMoves = 0;
-                        }
+                        actor.setPosxy(board.getX(boardIndex), board.getY(boardIndex));
+                        actor.setPlacedIndex(boardIndex);
+                        break;
                     }
-                } catch (GameException e) {
-                    e.printStackTrace();
+                }
+
+                if(game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
+
+                    if(game.madeAMill(boardIndex, p.getPlayerToken())) {
+                        Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                        boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                        game.removePiece(boardIndex, opponentPlayer);
+                        rActor = game.getPlayer1().getActorAt(boardIndex);
+                        ++removedPieceP1;
+                        rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                        rActor.setRemoved(true);
+                    }
+                    game.updateCurrentTurnPlayer();
+                } else {
+                    System.out.println("You can't place a piece there. Try again");
+                }
+
+            }else{
+                int srcIndex, destIndex;
+                Move move = p.getPieceMove(board, game.getCurrentGamePhase());
+                if(move != null) {
+                    srcIndex = move.srcIndex;
+                    destIndex = move.destIndex;
+                    System.out.println("Move piece from " + srcIndex + " to " + destIndex);
+
+                    int result;
+                    if ((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
+                        numberMoves++; // TODO testing
+                        totalMoves++;
+                        rActor = p.getActorAt(srcIndex);
+                        rActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
+                        rActor.setPlacedIndex(destIndex);
+                        if (game.madeAMill(destIndex, p.getPlayerToken())) {
+                            Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                            boardIndex = p.getIndexToRemovePieceOfOpponent(board);
+                            game.removePiece(boardIndex, opponentPlayer);
+                            rActor = game.getPlayer1().getActorAt(boardIndex);
+                            ++removedPieceP1;
+                            rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                            rActor.setRemoved(true);
+                        }
+                        game.updateCurrentTurnPlayer();
+                    }
+                }else {
+                    numberMoves = MAX_MOVES;
+                }
+                if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
+                    System.out.println(game.isTheGameOver() + " " + numberMoves);
+                    String finishLine;
+                    String finishDesc;
+                    if(!game.isTheGameOver() ||  numberMoves > MAX_MOVES) {
+                        System.out.println("Draw!");
+                        draws++;
+                        finishLine = "Game Draw";
+                        finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                                "\n" +
+                                " Would you like to play a new game";
+                        showDialog(finishLine, finishDesc);
+                    } else {
+                        System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
+                        finishLine = "Android Win!! ";
+                        finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                        showDialog(finishLine, finishDesc);
+                    }
+                    numberMoves = 0;
                 }
             }
-        },time);
+        } catch (GameException e) {
+            e.printStackTrace();
+        }
     }
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
@@ -321,9 +351,7 @@ public class MainActivity extends AppCompatActivity {
                                    // Log.d("removing at pos", ""+ mini);
                                     Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
                                     if (game.removePiece(boardIndex, opponentPlayer)) {
-                                        game.updateCurrentTurnPlayer();
                                         System.out.println("removed piece at " + boardIndex);
-
                                         if(opponentPlayer == Token.PLAYER_1){
                                             ++removedPieceP1;
                                             currActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
@@ -337,8 +365,10 @@ public class MainActivity extends AppCompatActivity {
 
                                         currActor.setRemoved(true);
                                         madeamill = false;
+                                        game.updateCurrentTurnPlayer();
                                         if(game.getCurrentTurnPlayer().isAI()) {
-                                            aiPlay(HANDLER_DELAY);
+                                            aiPlay();
+
                                         }
                                     } else {
                                         System.out.println("You can't remove a piece from there. Try again");
@@ -361,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
                                             game.updateCurrentTurnPlayer();
 
                                             if(game.getCurrentTurnPlayer().isAI()) {
-                                                aiPlay(HANDLER_DELAY);
+                                                aiPlay();
                                             }
                                         }
                                     } else {
@@ -381,9 +411,7 @@ public class MainActivity extends AppCompatActivity {
                                        // Log.d("removing at pos", ""+ mini);
                                         Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
                                         if (game.removePiece(boardIndex, opponentPlayer)) {
-                                            game.updateCurrentTurnPlayer();
                                             System.out.println("removed piece at " + boardIndex);
-
                                             if(opponentPlayer == Token.PLAYER_1){
                                                 ++removedPieceP1;
                                                 currActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
@@ -398,8 +426,9 @@ public class MainActivity extends AppCompatActivity {
                                             currActor.setRemoved(true);
                                             madeamill = false;
 
+                                            game.updateCurrentTurnPlayer();
                                             if(game.getCurrentTurnPlayer().isAI()) {
-                                                aiPlay(HANDLER_DELAY);
+                                               aiPlay();
                                             }
                                         } else {
                                             System.out.println("You can't remove a piece from there. Try again");
@@ -420,10 +449,10 @@ public class MainActivity extends AppCompatActivity {
                                             if(game.madeAMill(destIndex, p.getPlayerToken())) {
                                                 madeamill = true;
                                             }else {
-                                                System.out.println("changed current Player");
                                                 game.updateCurrentTurnPlayer();
+                                                System.out.println("changed current Player");
                                                 if(game.getCurrentTurnPlayer().isAI()) {
-                                                    aiPlay(HANDLER_DELAY);
+                                                    aiPlay();
                                                 }
                                             }
                                         } else {
@@ -445,12 +474,12 @@ public class MainActivity extends AppCompatActivity {
                                         showDialog(finishLine, finishDesc);
                                     } else {
                                         System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                                        if((game).getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) {
+                                        if((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
                                             p1Wins++;
-                                            finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
+                                            finishLine = game.getPlayer1().getName() + " Win!!";
                                         } else {
                                             p2Wins++;
-                                            finishLine = game.getCurrentTurnPlayer().getName() + " Win!!";
+                                            finishLine = game.getPlayer2().getName() + " Win!!";
                                         }
                                         finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
                                         showDialog(finishLine, finishDesc);
@@ -512,5 +541,54 @@ public class MainActivity extends AppCompatActivity {
         });
         //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
         alertDialog.show();
+    }
+    private class Asyncaiplay extends AsyncTask<Integer, Void, MotionEvent>
+    {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+        @Override
+        protected MotionEvent doInBackground(Integer... params) {
+
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            actionActor.setPosxy(params[0], params[1]);
+
+// Obtain MotionEvent object
+            long downTime = SystemClock.uptimeMillis();
+            long eventTime = SystemClock.uptimeMillis() + 100;
+            float x = params[0];
+            float y = params[1];
+// List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
+            int metaState = 0;
+            MotionEvent motionEvent = MotionEvent.obtain(
+                    downTime,
+                    eventTime,
+                    MotionEvent.ACTION_UP,
+                    x,
+                    y,
+                    metaState
+            );
+
+// Dispatch touch event to view
+
+
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return motionEvent;
+        }
+
+        @Override
+        protected void onPostExecute(MotionEvent result) {
+            super.onPostExecute(result);
+            //this method will be running on UI thread
+            gameView.dispatchTouchEvent(result);
+        }
     }
 }
