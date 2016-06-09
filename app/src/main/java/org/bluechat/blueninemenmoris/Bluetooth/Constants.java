@@ -21,4 +21,7 @@ public interface Constants {
     public static final int DOWN = 110;
     public static final int UP = 130;
     public static final int MOVE = 120;
+    public static final int PLAYER_1 = 140;
+    public static final int PLAYER_2 = 150;
+
 }

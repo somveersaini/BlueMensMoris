@@ -78,6 +78,7 @@ public class DeviceListActivity extends Activity {
         super.onCreate(savedInstanceState);
         // Setup the window
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setFinishOnTouchOutside(false);
         setContentView(R.layout.activity_device_list);
         setResult(Activity.RESULT_CANCELED);
 

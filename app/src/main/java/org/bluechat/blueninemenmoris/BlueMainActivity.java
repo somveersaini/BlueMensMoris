@@ -88,14 +88,23 @@ public class BlueMainActivity extends AppCompatActivity {
                     switch (msg.arg1) {
                         case BluetoothChatService.STATE_CONNECTED:
                             // setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-
+                            Log.d(TAG, "handleMessage:  connected");
+                            String message = Constants.PLAYER_2 + " " + myname;
+                            sendmessage(message);
 
                             break;
                         case BluetoothChatService.STATE_CONNECTING:
                             // setStatus("Connecting...");
+                            Log.d(TAG, "handleMessage: connecting");
                             break;
                         case BluetoothChatService.STATE_LISTEN:
+                            break;
                         case BluetoothChatService.STATE_NONE:
+                            Log.d(TAG, "handleMessage: state none");
+                            Log.d(TAG, "deviceListResult secure: not connected");
+                            Intent serverIntent = new Intent(BlueMainActivity.this, DeviceListActivity.class);
+                            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
+                            ensureDiscoverable();
                             //  setStatus("Currently not connected");
                             break;
                     }
@@ -110,7 +119,11 @@ public class BlueMainActivity extends AppCompatActivity {
                     Log.d("sam", readMessage);
                     String[] m = readMessage.split(" ");
                     //bluetoothinput(Integer.parseInt(m[0]), m[1]);
-                    bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
+                    if (m.length == 3) {
+                        bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
+                    } else {
+                        bluetoothinput(Integer.parseInt(m[0]), m[1]);
+                    }
                     // TODO: 06/09/2016 message recieved handle bluetoth input
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
@@ -129,6 +142,8 @@ public class BlueMainActivity extends AppCompatActivity {
                     break;
             }
         }
+
+
     };
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
@@ -138,7 +153,7 @@ public class BlueMainActivity extends AppCompatActivity {
             int pointerId = event.getPointerId(index);
 
             String msg = null;
-            if (game.getCurrentTurnPlayer().getName().equals(myname)) {
+            if (game.getCurrentTurnPlayer().getName().equals("you")) {
                 if (action == MotionEvent.ACTION_DOWN) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
@@ -434,6 +449,24 @@ public class BlueMainActivity extends AppCompatActivity {
         }
 
     };
+
+    private void bluetoothinput(int msg, String name) {
+        switch (msg) {
+            case Constants.PLAYER_1:
+                p1.setName(name);
+                p2.setName("you");
+                break;
+
+            case Constants.PLAYER_2:
+                p1.setName("you");
+                p2.setName(name);
+                break;
+        }
+    }
+
+    private void sendmessage(String msg) {
+        sendMessage(msg);
+    }
 
     private void bluetoothinput(int msg, int x, int y) {
         switch (msg) {
@@ -740,6 +773,7 @@ public class BlueMainActivity extends AppCompatActivity {
         top.setText(p1.getName() + " ");
         bottom.setText(p2.getName() + " ");
         gameView.setOnTouchListener(gameListner);
+        myname = "sam";
     }
 
     public void showDialog(String finishline, String finishdesc) {
@@ -829,6 +863,7 @@ public class BlueMainActivity extends AppCompatActivity {
                 // When DeviceListActivity returns with a device to connect
                 if (resultCode == Activity.RESULT_OK) {
                     connectDevice(data, true);
+
                 }
                 break;
             case REQUEST_CONNECT_DEVICE_INSECURE:
@@ -854,6 +889,10 @@ public class BlueMainActivity extends AppCompatActivity {
                 .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         mChatService.connect(device, secure);
+        if (mChatService.getState() == BluetoothChatService.STATE_CONNECTED) {
+            String msg = Constants.PLAYER_1 + " " + game.getCurrentTurnPlayer().getName();
+            sendMessage(msg);
+        }
     }
 
     @Override
@@ -863,10 +902,12 @@ public class BlueMainActivity extends AppCompatActivity {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
             // Otherwise, setup the chat session
-        } else if (mChatService == null) {
+        }
+        if (mChatService == null) {
             setupChat();
         }
         if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+            Log.d(TAG, "onStart: not connected");
             Intent serverIntent = new Intent(this, DeviceListActivity.class);
             startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
             ensureDiscoverable();
