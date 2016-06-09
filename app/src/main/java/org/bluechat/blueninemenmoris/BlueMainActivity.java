@@ -1,10 +1,15 @@
 package org.bluechat.blueninemenmoris;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +20,11 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.bluechat.blueninemenmoris.Bluetooth.BluetoothChatService;
+import org.bluechat.blueninemenmoris.Bluetooth.Constants;
+import org.bluechat.blueninemenmoris.Bluetooth.DeviceListActivity;
 import org.bluechat.blueninemenmoris.model.Actor;
 import org.bluechat.blueninemenmoris.model.Board;
 import org.bluechat.blueninemenmoris.model.Game;
@@ -23,27 +32,96 @@ import org.bluechat.blueninemenmoris.model.GameException;
 import org.bluechat.blueninemenmoris.model.HumanPlayer;
 import org.bluechat.blueninemenmoris.model.LocalGame;
 import org.bluechat.blueninemenmoris.model.MinimaxAIPlayer;
-import org.bluechat.blueninemenmoris.model.Move;
 import org.bluechat.blueninemenmoris.model.Player;
 import org.bluechat.blueninemenmoris.model.Token;
 
-public class MainActivity extends AppCompatActivity {
+public class BlueMainActivity extends AppCompatActivity {
+
     public static final int MAX_MOVES = 150;
+    private static final String TAG = "MainActity";
+    // Intent request codes
+    private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
+    private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
+    private static final int REQUEST_ENABLE_BT = 3;
     public static int totalMoves = 0;
+    public String name = "Player One";
     public LocalGame game;
+    boolean myturn = true;
+    int chal = 0;
+    int COL = 8;
+    SharedPreferences settings;
     Actor currActor = null;
     Typeface typeface, typeface1;
     Player p1, p2;
-    Actor rActor;
-    Actor actionActor;
     Handler handler;
     long HANDLER_DELAY = 10;
     TextView top;
     TextView bottom;
+    private String mConnectedDeviceName = null;
+    private StringBuffer mOutStringBuffer;
+    private BluetoothAdapter mBluetoothAdapter = null;
+    private BluetoothChatService mChatService = null;
+    /**
+     * The Handler that gets information back from the BluetoothChatService
+     */
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Activity activity = getParent();
+            switch (msg.what) {
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothChatService.STATE_CONNECTED:
+                            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
+
+
+                            break;
+                        case BluetoothChatService.STATE_CONNECTING:
+                            // setStatus("Connecting...");
+                            break;
+                        case BluetoothChatService.STATE_LISTEN:
+                        case BluetoothChatService.STATE_NONE:
+                            //  setStatus("Currently not connected");
+                            break;
+                    }
+                    break;
+                case Constants.MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+                    String writeMessage = new String(writeBuf);
+                    break;
+                case Constants.MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    Log.d("sam", readMessage);
+                    String[] m = readMessage.split(" ");
+                    //bluetoothinput(Integer.parseInt(m[0]), m[1]);
+                    // TODO: 06/09/2016 message recieved handle bluetoth input
+                    break;
+                case Constants.MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+                    if (null != activity) {
+                        Toast.makeText(activity, "Connected to "
+                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case Constants.MESSAGE_TOAST:
+                    if (null != activity) {
+                        Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        }
+    };
+    private int backButtonCount = 0;
+    private long backButtonPreviousTime = 0;
+    private boolean backButtonMessageHasBeenShown = false;
+    private boolean starter = true;
     private Board board;
     private GameView gameView;
     private int numberGames = 1, fixedNumberGames = 1, numberMoves = 0, draws = 0, p1Wins = 0, p2Wins = 0;
-    private  long gamesStart;
+    private long gamesStart;
     private int removedPieceP1, removedPieceP2;
     private int starttime = 0, currenttime = 0;
     private VelocityTracker mVelocityTracker = null;
@@ -203,9 +281,9 @@ public class MainActivity extends AppCompatActivity {
                                         currActor.setRemoved(true);
                                         madeamill = false;
                                         game.updateCurrentTurnPlayer();
-                                        if (game.getCurrentTurnPlayer().isAI()) {
-                                            new Asyncaiplay().execute();
-                                        }
+
+                                        //TODO : send and update to bluetooth device
+
                                     } else {
                                         System.out.println("You can't remove a piece from there. Try again");
                                     }
@@ -225,9 +303,7 @@ public class MainActivity extends AppCompatActivity {
                                             System.out.println("changed current Player");
                                             game.updateCurrentTurnPlayer();
 
-                                            if (game.getCurrentTurnPlayer().isAI()) {
-                                                new Asyncaiplay().execute();
-                                            }
+                                            //TODO : send and update to bluetooth device
                                         }
                                     } else {
                                         System.out.println("You can't place a piece there. Try again");
@@ -261,9 +337,9 @@ public class MainActivity extends AppCompatActivity {
                                             madeamill = false;
 
                                             game.updateCurrentTurnPlayer();
-                                            if (game.getCurrentTurnPlayer().isAI()) {
-                                                new Asyncaiplay().execute();
-                                            }
+
+                                            //TODO : send and update to bluetooth device
+
                                         } else {
                                             System.out.println("You can't remove a piece from there. Try again");
                                         }
@@ -284,9 +360,9 @@ public class MainActivity extends AppCompatActivity {
                                             } else {
                                                 game.updateCurrentTurnPlayer();
                                                 System.out.println("changed current Player");
-                                                if (game.getCurrentTurnPlayer().isAI()) {
-                                                    new Asyncaiplay().execute();
-                                                }
+
+                                                //TODO : send and update to bluetooth device
+
                                             }
                                         } else {
                                             currActor.setPosxy(board.getX(srcIndex), board.getY(srcIndex));
@@ -347,26 +423,35 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            // Activity activity = this;
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            this.finish();
+        }
+
         typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
 
         handler = new Handler();
-        gameView = (GameView)findViewById(R.id.gameView);
+        gameView = (GameView) findViewById(R.id.gameView);
 
         top = (TextView) findViewById(R.id.top);
         bottom = (TextView) findViewById(R.id.bottom);
 
         try {
             game = new LocalGame();
-            p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-            if(getIntent().getBooleanExtra("isAI",false)){
+            p1 = new HumanPlayer("sam", Token.PLAYER_1, 9);
+            if (getIntent().getBooleanExtra("isAI", false)) {
                 p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
-            }else {
-                p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+            } else {
+                p2 = new HumanPlayer("ashi", Token.PLAYER_2, 9);
             }
-            game.setPlayers(p1,p2);
+            game.setPlayers(p1, p2);
             board = game.getGameBoard();
             gameView.setGame(game);
         } catch (GameException e) {
@@ -375,138 +460,9 @@ public class MainActivity extends AppCompatActivity {
         top.setText(p1.getName() + " ");
         bottom.setText(p2.getName() + " ");
         gameView.setOnTouchListener(gameListner);
-
     }
 
-    public void aiPlay(){
-        try {
-            MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
-            int boardIndex;
-
-            if(game.getCurrentGamePhase() == Game.PLACING_PHASE){
-                boardIndex = p.getIndexToPlacePiece(board);
-
-                Actor[] actors = p.getActors();
-                for (Actor actor : actors) {
-                    if (!actor.isPlaced() && !actor.isRemoved()) {
-                        numberMoves++; // TODO testing
-                        totalMoves++;
-                        p.raiseNumPiecesOnBoard();
-                        int x2 = board.getX(boardIndex);
-                        int x1 = actor.getPosx();
-
-                        int y2 = board.getY(boardIndex);
-                        int y1 = actor.getPosy();
-
-                        int pS;
-                        int px = (x2 - x1);
-                        int py = (y2 - y1);
-                        if(Math.abs(px)  > Math.abs(py)){
-                            pS = Math.abs(py);
-                        }
-                        else {
-                            pS = Math.abs(px);
-                        }
-                        if (pS == 0) {
-                            pS = 1;
-                        }
-                        float ySlope = py/pS;
-                        float xSlope = px/pS;
-                        actionActor = actor;
-                        for (int i = 1; i <= pS; i++) {
-                           // actor.setPosxy(x1 + i*xSlope, (int) (y1 + i*ySlope));
-                            Log.d("cordinates ","x : "+ (x1+i*xSlope) +"   y: "+(y1 + i*ySlope));
-                            actor.setPosxy((int) (x1 + i * xSlope), (int) (y1 + i * ySlope));
-                        }
-
-                        actor.setPosxy(board.getX(boardIndex), board.getY(boardIndex));
-                        actor.setPlacedIndex(boardIndex);
-                        break;
-                    }
-                }
-
-                if(game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
-
-                    if(game.madeAMill(boardIndex, p.getPlayerToken())) {
-                        Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                        boardIndex = p.getIndexToRemovePieceOfOpponent(board);
-                        game.removePiece(boardIndex, opponentPlayer);
-                        rActor = game.getPlayer1().getActorAt(boardIndex);
-                        ++removedPieceP1;
-                        rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                        rActor.setRemoved(true);
-                    }
-                    game.updateCurrentTurnPlayer();
-                } else {
-                    System.out.println("You can't place a piece there. Try again");
-                }
-
-            }else{
-                int srcIndex, destIndex;
-                Move move = p.getPieceMove(board, game.getCurrentGamePhase());
-                if(move != null) {
-                    srcIndex = move.srcIndex;
-                    destIndex = move.destIndex;
-                    System.out.println("Move piece from " + srcIndex + " to " + destIndex);
-
-                    int result;
-                    if ((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
-                        numberMoves++; // TODO testing
-                        totalMoves++;
-                        rActor = p.getActorAt(srcIndex);
-                        rActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
-                        rActor.setPlacedIndex(destIndex);
-                        if (game.madeAMill(destIndex, p.getPlayerToken())) {
-                            Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-                            boardIndex = p.getIndexToRemovePieceOfOpponent(board);
-                            game.removePiece(boardIndex, opponentPlayer);
-                            rActor = game.getPlayer1().getActorAt(boardIndex);
-                            ++removedPieceP1;
-                            rActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                            rActor.setRemoved(true);
-                        }
-                        game.updateCurrentTurnPlayer();
-                    }
-                }else {
-                    numberMoves = MAX_MOVES;
-                }
-                if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
-                    System.out.println(game.isTheGameOver() + " " + numberMoves);
-
-                    if (!game.isTheGameOver() && numberMoves > MAX_MOVES) {
-                        System.out.println("Draw!");
-                        draws++;
-                        final String finishLine = "Game Draw";
-                        final String finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                "\n" +
-                                " Would you like to play a new game";
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showDialog(finishLine, finishDesc);
-                            }
-                        });
-
-                    } else {
-                        System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                        final String finishLine = game.getOpponentPlayer().getName() + " Win!! ";
-                        final String finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showDialog(finishLine, finishDesc);
-                            }
-                        });
-                    }
-                    numberMoves = 0;
-                }
-            }
-        } catch (GameException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void showDialog(String finishline , String finishdesc){
+    public void showDialog(String finishline, String finishdesc) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.finished, null);
@@ -536,35 +492,131 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private class Asyncaiplay extends AsyncTask<Void, Void, Void>
-    {
+    private void setupChat() {
+        Log.d(TAG, "setupChat()");
+        mChatService = new BluetoothChatService(this, mHandler);
+        mOutStringBuffer = new StringBuffer("");
+    }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            top.setText(game.getPlayer1().getName() + "\n" + "Waiting..");
-            bottom.setText(game.getPlayer2().getName() + "\n" + "Thinking..");
-            gameView.setEnabled(false);
+    private void ensureDiscoverable() {
+        if (mBluetoothAdapter.getScanMode() !=
+                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoverableIntent);
         }
-        @Override
-        protected Void doInBackground(Void... params) {
+    }
 
-            //this method will be running on background thread so don't update UI frome here
-            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
-
-            aiPlay();
-
-            return null;
+    //* Sends a message.(String message)
+    private void sendMessage(String message) {
+        if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+            //  Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            //this method will be running on UI thread
-            top.setText(game.getPlayer1().getName() + "\n" + "Play..");
-            bottom.setText(game.getPlayer2().getName() + "\n" + "Waiting..");
-            gameView.setEnabled(true);
-            gameView.invalidate();
+        if (message.length() > 0) {
+            byte[] send = message.getBytes();
+            mChatService.write(send);
+            mOutStringBuffer.setLength(0);
+
+        }
+    }
+
+    // * Updates the status on the action bar. usin resID
+    private void setStatus(int resId) {
+        Activity activity = this;
+        if (null == activity) {
+            return;
+        }
+    }
+
+    private void setStatus(CharSequence subTitle) {
+        Activity activity = this;
+        if (null == activity) {
+            return;
+        }
+        //TextView g = (TextView) findViewById(R.id.bluename);
+        //g.setText(subTitle);
+        sendMessage(-1 + " " + name);
+        // refresh();
+        //adapter.turn = 0;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CONNECT_DEVICE_SECURE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    connectDevice(data, true);
+                }
+                break;
+            case REQUEST_CONNECT_DEVICE_INSECURE:
+                if (resultCode == Activity.RESULT_OK) {
+                    connectDevice(data, false);
+                }
+                break;
+            case REQUEST_ENABLE_BT:
+                if (resultCode == Activity.RESULT_OK) {
+                    setupChat();
+                } else {
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
+                            Toast.LENGTH_SHORT).show();
+                    this.finish();
+                }
+        }
+    }
+
+    //* Establish connection with other divice
+    private void connectDevice(Intent data, boolean secure) {
+        String address = data.getExtras()
+                .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        mChatService.connect(device, secure);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            // Otherwise, setup the chat session
+        } else if (mChatService == null) {
+            setupChat();
+        }
+    }
+
+    public void bluetoothSetup() {
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            // Otherwise, setup the chat session
+        } else if (mChatService == null) {
+            setupChat();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mChatService != null) {
+            mChatService.stop();
+        }
+        // save();
+        // mp.stop();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mChatService != null) {
+            // Only if the state is STATE_NONE, do we know that we haven't started already
+            if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
+                // Start the Bluetooth chat services
+                mChatService.start();
+            }
         }
     }
 }

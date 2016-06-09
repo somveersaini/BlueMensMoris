@@ -9,11 +9,11 @@ import java.util.List;
 
 
 public class MinimaxAIPlayer extends AIPlayer {
+	static final int maxScore = 1000000;
+	public int bestScore = 0;
 	private int depth;
 	private Token opponentPlayer;
 	private Move currentBestMove;
-	public int bestScore = 0;
-	static final int maxScore = 1000000;
 	public MinimaxAIPlayer(Token player, int numPiecesPerPlayer, int depth) throws GameException {
 		super(player, numPiecesPerPlayer);
 		if(depth < 1) {
@@ -118,7 +118,9 @@ public class MinimaxAIPlayer extends AIPlayer {
 		try {
 			
 			List<Move> moves = generateMoves(gameBoard, playerToken, getGamePhase(gameBoard, playerToken)); // sorted already
-
+			if (moves.isEmpty()) {
+				return null;
+			}
 			for(Move move : moves) {
 				applyMove(move, playerToken, gameBoard, Game.MOVING_PHASE);
 				move.score += alphaBeta(opponentPlayer, gameBoard, depth-1, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -129,9 +131,6 @@ public class MinimaxAIPlayer extends AIPlayer {
 
 			// if there are different moves with the same score it returns one of them randomly
 			List<Move> bestMoves = new ArrayList<Move>();
-			if(bestMoves.isEmpty()){
-				return null;
-			}
 			int bestScore = moves.get(0).score;
 			bestMoves.add(moves.get(0));
 			for(int i = 1; i < moves.size(); i++) {
@@ -486,23 +485,7 @@ public class MinimaxAIPlayer extends AIPlayer {
 		return moves;
 	}
 
-	private class HeuristicComparatorMax implements Comparator<Move> {
-
-		@Override
-		public int compare(Move t, Move t1) {
-			return t1.score - t.score;
-		}
-	}
-
-	private class HeuristicComparatorMin implements Comparator<Move> {
-
-		@Override
-		public int compare(Move t, Move t1) {
-			return t.score - t1.score;
-		}
-	}
-
-	public int getGamePhase(Board gameBoard, Token player) 
+	public int getGamePhase(Board gameBoard, Token player)
 	{
 		int gamePhase = Game.PLACING_PHASE;
 		try {
@@ -517,7 +500,7 @@ public class MinimaxAIPlayer extends AIPlayer {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		return gamePhase;		
+		return gamePhase;
 	}
 
 	private int checkGameOver(Board gameBoard) {
@@ -539,5 +522,21 @@ public class MinimaxAIPlayer extends AIPlayer {
 			}
 		}
 		return 0;
+	}
+
+	private class HeuristicComparatorMax implements Comparator<Move> {
+
+		@Override
+		public int compare(Move t, Move t1) {
+			return t1.score - t.score;
+		}
+	}
+
+	private class HeuristicComparatorMin implements Comparator<Move> {
+
+		@Override
+		public int compare(Move t, Move t1) {
+			return t.score - t1.score;
+		}
 	}
 }

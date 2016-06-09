@@ -3,98 +3,111 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/gamebg"
+    android:gravity="center"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:background="@drawable/gamebg"
-    android:gravity="center"
-    android:layout_gravity="center_horizontal"
-    android:layout_centerHorizontal="true"
-    android:layout_centerVertical="true"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".StartActivity">
     <Button
         android:id="@+id/play"
-        android:background="@null"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:background="@null"
         android:onClick="buttonhandler"
         android:text="@string/btnplay"
         android:textSize="30sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="15dp"
-        android:layout_centerHorizontal="true" />
+        android:textStyle="bold" />
     <Button
         android:id="@+id/aiplayer"
-        android:background="@null"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/play"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:background="@null"
         android:onClick="buttonhandler"
         android:text="@string/btnplayai"
         android:textSize="30sp"
-        android:layout_below="@+id/play"
-        android:textStyle="bold"
-        android:layout_marginBottom="15dp"
-        android:layout_centerHorizontal="true" />
+        android:textStyle="bold" />
     <Button
         android:id="@+id/netPlay"
-        android:background="@null"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/aiplayer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="25dp"
+        android:background="@null"
         android:onClick="buttonhandler"
         android:text="@string/netPlay"
         android:textSize="30sp"
-        android:layout_below="@+id/aiplayer"
-        android:textStyle="bold"
-        android:layout_marginBottom="25dp"
-        android:layout_centerHorizontal="true" />
-    <LinearLayout
-        android:orientation="horizontal"
-        android:id="@+id/panel"
-        android:weightSum="4"
-        android:layout_below="@id/netPlay"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/bluePlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/netPlay"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="25dp"
+        android:background="@null"
+        android:onClick="buttonhandler"
+        android:text="@string/bluePlay"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bluePlay"
+        android:orientation="horizontal"
+        android:weightSum="4">
         <ImageButton
-            android:src="@drawable/ic_settings"
             android:id="@+id/setting"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_weight="1"
+            android:background="@null"
             android:onClick="buttonhandler"
-            android:text="Settings"
-
             android:scaleType="fitCenter"
-            android:background="@null"  />
+
+            android:src="@drawable/ic_settings"
+            android:text="Settings" />
         <ImageButton
-            android:src="@drawable/ic_help"
             android:id="@+id/help"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_weight="1"
             android:background="@null"
             android:onClick="buttonhandler"
-            android:text="Help"
-            android:scaleType="fitCenter"  />
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_help"
+            android:text="Help" />
         <ImageButton
-            android:src="@drawable/ic_info"
             android:id="@+id/about"
-            android:background="@null"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_weight="1"
-            android:scaleType="fitCenter"
+            android:background="@null"
             android:onClick="buttonhandler"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_info"
             android:text="About"  />
         <ImageButton
-            android:src="@drawable/ic_trophy"
             android:id="@+id/trophy"
-            android:background="@null"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_weight="1"
-            android:scaleType="fitCenter"
+            android:background="@null"
             android:onClick="buttonhandler"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_trophy"
             android:text="Achivements"  />
     </LinearLayout>
 
