@@ -6,7 +6,7 @@
     <string name="phone">8090150580</string>
     <string name="fb">fb.com/bluedroid15</string>
     <string name="btnplay">PLAY</string>
-    <string name="btnplayai">PLAY with Android</string>
+    <string name="btnplayai">Android</string>
     <string name="netPlay">Network Game</string>
     <string name="settingsBoard">Board Size</string>
     <string name="settingsSet">Set</string>
@@ -20,10 +20,6 @@
     Placing men on vacant points\n
         In this phase, you have to place all your pieces on board.\n\n
     Moving men to adjacent points\n
-        In this you can only move to valid moves on board.\n\n
-    (optional phase) Moving men to any vacant point when a player has been reduced to three men\n
-        After your pieces, reduced to three you can move to any position available.\n\n
-         if you get the mill, you can pick a piece of opponent.\n\n
     Cheers!!!</string>
     <string name="title_activity_ai_main">AiMainActivity</string>
 
@@ -43,13 +39,13 @@
     <string name="insecure_connect">Connect a device - Insecure</string>
     <string name="discoverable">Make discoverable</string>
 
-    <string name="bluePlay">Play over bluetooth</string>
+    <string name="bluePlay">bluetooth</string>
 
     <!--  MainActity -->
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Blue Puzzle.</string>
-    <string name="title_connecting">connecting...</string>
+    <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="title_not_connected">not connected</string>
 </resources>

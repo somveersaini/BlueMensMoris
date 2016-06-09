@@ -19,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
         ((Button) findViewById(R.id.play)).setTypeface(typeface);
         ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
         ((Button) findViewById(R.id.netPlay)).setTypeface(typeface);
+        ((Button) findViewById(R.id.bluePlay)).setTypeface(typeface);
     }
 
     @Override

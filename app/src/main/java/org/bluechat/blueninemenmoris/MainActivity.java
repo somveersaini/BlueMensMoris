@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
             if(getIntent().getBooleanExtra("isAI",false)){
                 p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
             }else {
-                p2 = new HumanPlayer("ashi", Token.PLAYER_2,9);
+                p2 = new HumanPlayer("kuku", Token.PLAYER_2, 9);
             }
             game.setPlayers(p1,p2);
             board = game.getGameBoard();
@@ -535,7 +535,6 @@ public class MainActivity extends AppCompatActivity {
         //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
         alertDialog.show();
     }
-
     private class Asyncaiplay extends AsyncTask<Void, Void, Void>
     {
 

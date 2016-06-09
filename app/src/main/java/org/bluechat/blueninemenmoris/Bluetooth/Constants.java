@@ -18,4 +18,7 @@ public interface Constants {
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
 
+    public static final int DOWN = 110;
+    public static final int UP = 130;
+    public static final int MOVE = 120;
 }
