@@ -10,13 +10,11 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -73,7 +71,6 @@ public class BlueMainActivity extends AppCompatActivity {
     private long gamesStart;
     private int removedPieceP1, removedPieceP2;
     private int starttime = 0, currenttime = 0;
-    private VelocityTracker mVelocityTracker = null;
     private boolean madeamill = false;
     private int offsetX;
     private int offsetY;
@@ -119,7 +116,7 @@ public class BlueMainActivity extends AppCompatActivity {
                     //bluetoothinput(Integer.parseInt(m[0]), m[1]);
                     if (m.length == 3) {
                         bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
-                    } else {
+                    } else if (m.length == 4) {
                         bluetoothinput(Integer.parseInt(m[0]), m[1], Integer.parseInt(m[2]), Integer.parseInt(m[3]));
                     }
                     // TODO: 06/09/2016 message recieved handle bluetoth input
@@ -161,15 +158,6 @@ public class BlueMainActivity extends AppCompatActivity {
                     currenttime = (int) Math.abs(System.currentTimeMillis());
                     currenttime = Math.abs(currenttime);
                     // System.out.println(currenttime + " " + starttime);
-                    if (Math.abs(currenttime - starttime) < 300) {
-                        // showsolution();
-                    }
-                    if (mVelocityTracker == null) {
-                        mVelocityTracker = VelocityTracker.obtain();
-                    } else {
-                        mVelocityTracker.clear();
-                    }
-                    mVelocityTracker.addMovement(event);
 
                     int min = 10000;
 
@@ -233,15 +221,8 @@ public class BlueMainActivity extends AppCompatActivity {
                 } else if (action == MotionEvent.ACTION_MOVE) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.DOWN + " " + x + " " + y;
+                    msg = Constants.MOVE + " " + x + " " + y;
                     sendMessage(msg);
-
-                    mVelocityTracker.addMovement(event);
-                    mVelocityTracker.computeCurrentVelocity(1000);
-                    int xvel = (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-                    int yvel = (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, pointerId);
-
-                    int vel = (int) Math.sqrt(xvel * xvel + yvel * yvel);
 
 
                     // Log.d("moving", x + " " + y);
@@ -253,7 +234,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.DOWN + " " + x + " " + y;
+                    msg = Constants.UP + " " + x + " " + y;
                     sendMessage(msg);
 
                     Log.d("action", "up");
@@ -449,21 +430,19 @@ public class BlueMainActivity extends AppCompatActivity {
     };
 
     private void bluetoothinput(int msg, String name, int width, int height) {
-        scalex = ((float) width / (float) gameView.getViewWidth());
-        scaley = ((float) height / (float) gameView.getViewHeight());
+        scalex = ((float) gameView.getViewWidth() / (float) width);
+        scaley = ((float) gameView.getViewHeight() / (float) height);
 
         if (myturn) {
             p1.setName("you");
             p2.setName(name);
             top.setText("you");
             bottom.setText(name);
-            game.setCurrentTurnPlayer(p1);
         } else {
             p1.setName(name);
             p2.setName("you");
             top.setText(name + " start");
             bottom.setText("you");
-            game.setCurrentTurnPlayer(p1);
         }
 
     }
@@ -473,9 +452,12 @@ public class BlueMainActivity extends AppCompatActivity {
     }
 
     private void bluetoothinput(int msg, int x, int y) {
+
+        Log.d(TAG, "bluetoothinput: x = " + x + " y = " + y);
         x = (int) (x * scalex);
         y = (int) (y * scaley);
 
+        Log.d(TAG, "scaled to : x = " + x + " y = " + y);
         switch (msg) {
             case Constants.DOWN:
                 //handle ACTION_DOWN from other device
@@ -507,6 +489,7 @@ public class BlueMainActivity extends AppCompatActivity {
                                 int t1 = y - (actor.getPosy());
                                 int t2 = x - (actor.getPosx());
                                 int temp = (int) Math.sqrt(Math.abs(t1 * t1 + t2 * t2));
+                                Log.d(TAG, "bluetoothinput: tmp" + temp);
                                 if (temp < min) {
                                     min = temp;
                                     offsetY = t1;
