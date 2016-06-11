@@ -24,7 +24,7 @@
 	 public Player getPlayer2() {
 		 return player2;
 	 }
-	
+
 	public void updateCurrentTurnPlayer() {
 		if(currentTurnPlayer.equals(player1)) {
 			currentTurnPlayer = player2;
@@ -42,9 +42,14 @@
 		return false;
 	}
 
-	public Player getCurrentTurnPlayer() {
+	 public Player getCurrentTurnPlayer() {
 		return currentTurnPlayer;
 	}
+
+	 public void setCurrentTurnPlayer(Player p1) {
+		 currentTurnPlayer = p1;
+	 }
+
      public Player getOpponentPlayer() {
          return currentTurnPlayer.equals(player1)?player2:player1;
      }

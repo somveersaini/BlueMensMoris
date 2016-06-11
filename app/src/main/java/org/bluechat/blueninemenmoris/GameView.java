@@ -14,47 +14,41 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-
 import org.bluechat.blueninemenmoris.model.Actor;
 import org.bluechat.blueninemenmoris.model.Board;
-import org.bluechat.blueninemenmoris.model.Game;
 import org.bluechat.blueninemenmoris.model.GameException;
 import org.bluechat.blueninemenmoris.model.HumanPlayer;
 import org.bluechat.blueninemenmoris.model.LocalGame;
-import org.bluechat.blueninemenmoris.model.Move;
 import org.bluechat.blueninemenmoris.model.Player;
 import org.bluechat.blueninemenmoris.model.Token;
 
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-
 public class GameView extends View {
 
+    private final int FRAME_RATE = 20;
     public int time = 0;
+    Bitmap bitmap, bitmap2;
+    int wt, ht;
     private Handler h;
-
-
     private Paint testPaint;
     private Paint textPaint;                // for painting the text
     private Paint finalPaint;
     private Paint blurPaint;
-
     private int viewHeight;
     private int viewWidth;
-
     private int squareSpace;
     private int removedx; // for x of removed piece
     private int removedSpace; //for spacing the pieces
     private Board board;     //gameboard
     private LocalGame game;   //localgame
     private  long gamesStart;
-
     private BitmapDrawable graphic;
-    Bitmap bitmap, bitmap2;
-    int wt, ht;
-
-    private final int FRAME_RATE = 20;
     private int starttimeinsec = 0;
+    private Runnable r = new Runnable() {
+
+        public void run() {
+            invalidate();
+        }
+    };
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
@@ -116,6 +110,7 @@ public class GameView extends View {
         textPaint.setAntiAlias(true);
         textPaint.setShadowLayer(9f, 3, 3, Color.parseColor("#2090ff"));
     }
+
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld){
         super.onSizeChanged(xNew, yNew, xOld, yOld);
@@ -146,27 +141,26 @@ public class GameView extends View {
 
 
     }
+
     public  int getP1rx(){
         return removedx;
     }
+
     public  int getP2rx(){
         return viewWidth - removedx;
     }
+
     public int getP1ry(int removedPieceP1){
         return (squareSpace) + ((removedPieceP1 + 1) * removedSpace);
     }
+
     public int getP2ry(int removedPieceP2){
         return (viewWidth + squareSpace) - (removedPieceP2 * removedSpace);
     }
+
     public Bitmap getBitmap(){
         return bitmap;
     }
-    private Runnable r = new Runnable() {
-
-        public void run() {
-            invalidate();
-        }
-    };
 
     protected void onDraw(Canvas c) {
 
@@ -231,6 +225,14 @@ public class GameView extends View {
 
     public void setBoard(Board board) {
         this.board = board;
+    }
+
+    public int getViewHeight() {
+        return viewHeight;
+    }
+
+    public int getViewWidth() {
+        return viewWidth;
     }
 
     public LocalGame getGame() {
