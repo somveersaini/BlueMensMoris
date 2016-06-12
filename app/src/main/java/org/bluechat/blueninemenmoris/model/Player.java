@@ -80,8 +80,8 @@ public abstract class Player {
     }
     public void setActors(int sx, int sy){
         for (int i = 0; i < numPieces; i++) {
-            actors[i] = new Actor((i + 1)*sx, sy);
-        }
+			actors[i] = new Actor((i + 1) * sx, sy, i + 1);
+		}
     }
 
 	public Actor getActorAt(int index){

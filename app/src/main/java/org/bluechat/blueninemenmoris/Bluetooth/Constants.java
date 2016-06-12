@@ -18,10 +18,14 @@ public interface Constants {
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
 
-    public static final int DOWN = 110;
-    public static final int UP = 130;
-    public static final int MOVE = 120;
-    public static final int PLAYER_1 = 140;
-    public static final int PLAYER_2 = 150;
+    public static final int DOWN = 11;
+    public static final int UP = 13;
+    public static final int MOVE = 12;
+    public static final int PLAYER_1 = 14;
+    public static final int PLAYER_2 = 15;
+
+    public static final int SELECT = 111;
+    public static final int REMOVE = 222;
+    public static final int PLACE = 333;
 
 }

@@ -111,13 +111,21 @@ public class BlueMainActivity extends AppCompatActivity {
                 case Constants.MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    Log.d("sam", readMessage);
+
                     String[] m = readMessage.split(" ");
                     //bluetoothinput(Integer.parseInt(m[0]), m[1]);
                     if (m.length == 3) {
+                        Log.d("recieved :3", Integer.parseInt(m[0]) + " " + Integer.parseInt(m[1]) + " " + Integer.parseInt(m[2]));
                         bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
                     } else if (m.length == 4) {
                         bluetoothinput(Integer.parseInt(m[0]), m[1], Integer.parseInt(m[2]), Integer.parseInt(m[3]));
+                        Log.d("recieved :4", Integer.parseInt(m[0]) + " " + m[1] + " " + Integer.parseInt(m[2]) + " " + Integer.parseInt(m[3]));
+                    } else {
+                        int inps = m.length / 3;
+                        for (int i = 0; i < inps; i++) {
+                            bluetoothinput(Integer.parseInt(m[i * 3]), Integer.parseInt(m[i * 3 + 1]), Integer.parseInt(m[i * 3 + 2]));
+                            Log.d("recieved :5", Integer.parseInt(m[i * 3]) + " " + Integer.parseInt(m[i * 3 + 1]) + " " + Integer.parseInt(m[i * 3 + 2]));
+                        }
                     }
                     // TODO: 06/09/2016 message recieved handle bluetoth input
                     break;
@@ -145,14 +153,13 @@ public class BlueMainActivity extends AppCompatActivity {
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             int index = event.getActionIndex();
-            int pointerId = event.getPointerId(index);
 
-            String msg = null;
+            String msg;
             if (game.getCurrentTurnPlayer().getName().equals("you")) {
                 if (action == MotionEvent.ACTION_DOWN) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.DOWN + " " + x + " " + y;
+                    msg = Constants.DOWN + " " + x + " " + y + " ";
                     sendMessage(msg);
 
                     currenttime = (int) Math.abs(System.currentTimeMillis());
@@ -211,7 +218,7 @@ public class BlueMainActivity extends AppCompatActivity {
                         }
                     }
                     Log.d("currentmin", " " + min);
-                    if (min > 80) {
+                    if (min > 100) {
                         currActor = null;
                     } else {
                         //  Log.d("selected opponent piece", " " + mini);
@@ -221,7 +228,7 @@ public class BlueMainActivity extends AppCompatActivity {
                 } else if (action == MotionEvent.ACTION_MOVE) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.MOVE + " " + x + " " + y;
+                    msg = Constants.MOVE + " " + x + " " + y + " ";
                     sendMessage(msg);
 
 
@@ -264,7 +271,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
                         Player p = game.getCurrentTurnPlayer();
                         int boardIndex;
-                        if (min < 80 && mini != -1) {
+                        if (min < 100 && mini != -1) {
                             Log.d("current game phase", "  ->  " + game.getCurrentGamePhase());
                             boardIndex = mini;
                             if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
@@ -453,11 +460,11 @@ public class BlueMainActivity extends AppCompatActivity {
 
     private void bluetoothinput(int msg, int x, int y) {
 
-        Log.d(TAG, "bluetoothinput: x = " + x + " y = " + y);
+        //Log.d(TAG, "bluetoothinput: x = " + x + " y = " + y);
         x = (int) (x * scalex);
         y = (int) (y * scaley);
 
-        Log.d(TAG, "scaled to : x = " + x + " y = " + y);
+        //Log.d(TAG, "scaled to : x = " + x + " y = " + y);
         switch (msg) {
             case Constants.DOWN:
                 //handle ACTION_DOWN from other device
@@ -465,7 +472,7 @@ public class BlueMainActivity extends AppCompatActivity {
                 int min = 10000;
                 if (madeamill) {
                     //Token opponentPlayer = (game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-
+                    Log.d(TAG, "bluetoothinput: madeamill select");
                     Actor[] actorscurrent = game.getOpponentPlayer().getActors();
                     for (Actor actor : actorscurrent) {
                         if (!actor.isRemoved()) {
@@ -513,7 +520,7 @@ public class BlueMainActivity extends AppCompatActivity {
                     }
                 }
                 Log.d("currentmin", " " + min);
-                if (min > 80) {
+                if (min > 100) {
                     currentBlueActor = null;
                 } else {
                     //  Log.d("selected opponent piece", " " + mini);
@@ -558,7 +565,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
                     Player p = game.getCurrentTurnPlayer();
                     int boardIndex;
-                    if (min < 80 && mini != -1) {
+                    if (min < 100 && mini != -1) {
                         Log.d("current game phase", "  ->  " + game.getCurrentGamePhase());
                         boardIndex = mini;
                         if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
@@ -600,6 +607,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
                                         if (game.madeAMill(boardIndex, p.getPlayerToken())) {
                                             madeamill = true;
+                                            currentBlueActor = null;
                                             System.out.println("You made a mill. You can remove a piece of your oponent: ");
                                         } else {
                                             System.out.println("changed current Player");
@@ -638,6 +646,7 @@ public class BlueMainActivity extends AppCompatActivity {
                                             currentBlueActor.setRemoved(true);
                                             madeamill = false;
 
+
                                             game.updateCurrentTurnPlayer();
 
                                             //TODO : send and update to bluetooth device
@@ -659,6 +668,7 @@ public class BlueMainActivity extends AppCompatActivity {
                                             currentBlueActor.setPlacedIndex(mini);
                                             if (game.madeAMill(destIndex, p.getPlayerToken())) {
                                                 madeamill = true;
+                                                currentBlueActor = null;
                                             } else {
                                                 game.updateCurrentTurnPlayer();
                                                 System.out.println("changed current Player");
@@ -809,7 +819,7 @@ public class BlueMainActivity extends AppCompatActivity {
     }
 
     //* Sends a message.(String message)
-    private void sendMessage(String message) {
+    private synchronized void sendMessage(String message) {
         if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
 
             //  Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();

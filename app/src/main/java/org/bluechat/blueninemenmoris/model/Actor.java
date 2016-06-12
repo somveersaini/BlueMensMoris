@@ -1,8 +1,5 @@
 package org.bluechat.blueninemenmoris.model;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-
 /**
  * Created by Samsaini on 05/25/2016.
  */
@@ -21,13 +18,15 @@ public class Actor {
     private int placedIndex = -1;
     //Player that have this Actor
     private int player;
+    private int number;
 
 
-    public Actor(int posx, int posy) {
+    public Actor(int posx, int posy, int number) {
         this.posx = posx;
         this.posy = posy;
         this.prex = posx;
         this.prey = posy;
+        this.number = number;
         placed = false;
     }
 
@@ -104,5 +103,13 @@ public class Actor {
     public void setPlacedIndex(int placedIndex) {
         this.placed = true;
         this.placedIndex = placedIndex;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 }
