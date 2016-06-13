@@ -3,32 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="12"
     android:orientation="vertical"
+    android:weightSum="12"
     tools:context="org.bluechat.blueninemenmoris.MainActivity">
 
     <TextView
+        android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textSize="30sp"
-        android:id="@+id/top"
         android:layout_weight="1"
-        android:text="Somveer saini"/>
+        android:background="@drawable/txtbg"
+        android:text="Somveer saini"
+        android:textSize="30sp" />
 
     <org.bluechat.blueninemenmoris.NetGameView
-        android:layout_width="match_parent"
-        android:background="@drawable/roundgridtextbg"
         android:id="@+id/netGameView"
-        android:layout_below="@+id/top"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"/>
+        android:layout_below="@+id/top"
+        android:layout_weight="10"
+        android:background="@drawable/roundgridtextbg" />
 
     <TextView
+        android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textSize="30sp"
         android:layout_below="@+id/gameView"
-        android:id="@+id/bottom"
         android:layout_weight="1"
-        android:text="Somveer saini"/>
+        android:background="@drawable/txtbg"
+        android:text="Somveer saini"
+        android:textSize="30sp" />
 </LinearLayout>

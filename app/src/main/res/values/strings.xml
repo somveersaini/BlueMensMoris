@@ -40,6 +40,8 @@
     <string name="discoverable">Make discoverable</string>
 
     <string name="bluePlay">bluetooth</string>
+    <string name="single1">Choose the level of AI player</string>
+    <string name="single2">AI player will have random name.</string>
 
     <!--  MainActity -->
     <string name="send">Send</string>

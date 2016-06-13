@@ -60,9 +60,9 @@ public class GameView extends View {
         board = game.getGameBoard();
 
 
-        graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bdots32);
+        graphic = (BitmapDrawable) context.getResources().getDrawable(R.mipmap.stone_b);
         bitmap = graphic.getBitmap();
-        graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bopp32);
+        graphic = (BitmapDrawable) context.getResources().getDrawable(R.mipmap.stone_w);
         bitmap2 = graphic.getBitmap();
 
         init();

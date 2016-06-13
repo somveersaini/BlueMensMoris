@@ -93,4 +93,14 @@ public abstract class Player {
 		}
 		return act;
 	}
+
+	public Actor getActorByNumber(int index) {
+		Actor act = null;
+		for (Actor actor : actors) {
+			if (actor.getNumber() == index) {
+				act = actor;
+			}
+		}
+		return act;
+	}
 }

@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/gamehelp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/gamehelp"
-    android:padding="16dp"
-    android:background="@drawable/gamebg">
+    android:background="@drawable/appbg"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
         android:id="@+id/help1"
-        android:textColor="#0000ff"
-        android:gravity="center_horizontal"
-        android:typeface="serif"
-        android:textSize="40sp"
-        android:layout_marginBottom="20dp"/>
-
-    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/shortdesc"
+        android:layout_marginBottom="20dp"
         android:gravity="center_horizontal"
+        android:text="@string/app_name"
+        android:textColor="#0000ff"
+        android:textSize="40sp"
+        android:typeface="serif" />
+
+    <TextView
         android:id="@+id/help2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:gravity="center_horizontal"
+        android:text="@string/shortdesc"
         android:textColor="#0000ff"
         android:textSize="20sp"
-        android:layout_marginBottom="40dp"
         android:typeface="serif"/>
 
 
     <TextView
+        android:id="@+id/help3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/blue"
-        android:id="@+id/help3"
+        android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
+        android:text="@string/blue"
         android:textColor="#0000ff"
         android:textSize="20sp"
-        android:layout_marginBottom="8dp"
         android:typeface="serif"/>
 
     <RelativeLayout
@@ -47,54 +47,55 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp">
         <TextView
+            android:id="@+id/developer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
             android:text="@string/me"
             android:textColor="#0000ff"
             android:textSize="20sp"
-            android:id="@+id/developer"
-            android:typeface="serif"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"/>
+            android:typeface="serif" />
 
-        <ImageView android:src="@drawable/me"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="90dp"
             android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/email"
             android:layout_toRightOf="@+id/email"
-            android:layout_toEndOf="@+id/email" />
+            android:src="@drawable/me" />
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/email"
             android:id="@+id/email"
-            android:layout_marginLeft="8dp"
-            android:layout_below="@+id/developer"/>
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/phone"
+            android:layout_below="@+id/developer"
+            android:layout_marginLeft="8dp"
+            android:text="@string/email" />
+        <TextView
             android:id="@+id/cont"
-            android:layout_marginLeft="8dp"
-            android:layout_below="@+id/email"/>
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fb"
-            android:id="@+id/fb"
+            android:layout_below="@+id/email"
             android:layout_marginLeft="8dp"
-            android:layout_below="@+id/cont"/>
+            android:text="@string/phone" />
+        <TextView
+            android:id="@+id/fb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cont"
+            android:layout_marginLeft="8dp"
+            android:text="@string/fb" />
 
     </RelativeLayout>
     <TextView
+        android:id="@+id/source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:gravity="center_horizontal"
-        android:id="@+id/source"
-        android:textColor="#000000"
         android:text="Find source code at\ngithub.com/somveersaini/BlueMensMoris"
+        android:textColor="#000000"
         android:textSize="20sp"
-        android:typeface="serif"
-        android:layout_marginBottom="10dp"/>
+        android:typeface="serif" />
 
 </LinearLayout>

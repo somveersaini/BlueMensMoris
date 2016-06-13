@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,9 +42,7 @@ public class BlueMainActivity extends AppCompatActivity {
     public String name = "Player One";
     public LocalGame game;
     boolean myturn = false;
-    int chal = 0;
-    int COL = 8;
-    SharedPreferences settings;
+
     Actor currActor = null;
     Typeface typeface, typeface1;
     Player p1, p2;
@@ -74,93 +71,17 @@ public class BlueMainActivity extends AppCompatActivity {
     private boolean madeamill = false;
     private int offsetX;
     private int offsetY;
-    /**
-     * The Handler that gets information back from the BluetoothChatService
-     */
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Activity activity = getParent();
-            switch (msg.what) {
-                case Constants.MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case BluetoothChatService.STATE_CONNECTED:
-                            // setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-                            Log.d(TAG, "handleMessage:  connected");
-                            String message = Constants.PLAYER_2 + " " + p2.getName() + " " + gameView.getViewWidth() + " " + gameView.getViewHeight();
-                            sendmessage(message);
-
-                            break;
-                        case BluetoothChatService.STATE_CONNECTING:
-                            // setStatus("Connecting...");
-                            Log.d(TAG, "handleMessage: connecting");
-                            break;
-                        case BluetoothChatService.STATE_LISTEN:
-                            break;
-                        case BluetoothChatService.STATE_NONE:
-                            Log.d(TAG, "handleMessage: state none");
-                            Log.d(TAG, "deviceListResult secure: not connected");
-                            //  setStatus("Currently not connected");
-                            break;
-                    }
-                    break;
-                case Constants.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    String writeMessage = new String(writeBuf);
-                    break;
-                case Constants.MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-
-                    String[] m = readMessage.split(" ");
-                    //bluetoothinput(Integer.parseInt(m[0]), m[1]);
-                    if (m.length == 3) {
-                        Log.d("recieved :3", Integer.parseInt(m[0]) + " " + Integer.parseInt(m[1]) + " " + Integer.parseInt(m[2]));
-                        bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
-                    } else if (m.length == 4) {
-                        bluetoothinput(Integer.parseInt(m[0]), m[1], Integer.parseInt(m[2]), Integer.parseInt(m[3]));
-                        Log.d("recieved :4", Integer.parseInt(m[0]) + " " + m[1] + " " + Integer.parseInt(m[2]) + " " + Integer.parseInt(m[3]));
-                    } else {
-                        int inps = m.length / 3;
-                        for (int i = 0; i < inps; i++) {
-                            bluetoothinput(Integer.parseInt(m[i * 3]), Integer.parseInt(m[i * 3 + 1]), Integer.parseInt(m[i * 3 + 2]));
-                            Log.d("recieved :5", Integer.parseInt(m[i * 3]) + " " + Integer.parseInt(m[i * 3 + 1]) + " " + Integer.parseInt(m[i * 3 + 2]));
-                        }
-                    }
-                    // TODO: 06/09/2016 message recieved handle bluetoth input
-                    break;
-                case Constants.MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
-                    if (null != activity) {
-                        Toast.makeText(activity, "Connected to "
-                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case Constants.MESSAGE_TOAST:
-                    if (null != activity) {
-                        Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-            }
-        }
-
-
-    };
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
-            int index = event.getActionIndex();
-
             String msg;
             if (game.getCurrentTurnPlayer().getName().equals("you")) {
                 if (action == MotionEvent.ACTION_DOWN) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.DOWN + " " + x + " " + y + " ";
-                    sendMessage(msg);
+//                    msg = Constants.DOWN + " " + x + " " + y + " ";
+//                    sendMessage(msg);
 
                     currenttime = (int) Math.abs(System.currentTimeMillis());
                     currenttime = Math.abs(currenttime);
@@ -220,29 +141,33 @@ public class BlueMainActivity extends AppCompatActivity {
                     Log.d("currentmin", " " + min);
                     if (min > 100) {
                         currActor = null;
+
                     } else {
-                        //  Log.d("selected opponent piece", " " + mini);
+                        Log.d("selected opponent piece", " send");
+                        msg = Constants.SELECT + " " + currActor.getNumber() + " 0 ";
+                        sendMessage(msg);
                     }
                     starttime = currenttime;
 
                 } else if (action == MotionEvent.ACTION_MOVE) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.MOVE + " " + x + " " + y + " ";
-                    sendMessage(msg);
+
 
 
                     // Log.d("moving", x + " " + y);
                     if (currActor != null) {
                         currActor.setPosxy(x - offsetX, y - offsetY);
+                        msg = Constants.MOVE + " " + x + " " + y + " ";
+                        sendMessage(msg);
                     }
 
                 } else if (action == MotionEvent.ACTION_UP) {
 
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-                    msg = Constants.UP + " " + x + " " + y;
-                    sendMessage(msg);
+//                    msg = Constants.UP + " " + x + " " + y;
+//                    sendMessage(msg);
 
                     Log.d("action", "up");
                     int min = 1000;
@@ -293,6 +218,9 @@ public class BlueMainActivity extends AppCompatActivity {
                                                 //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                             }
 
+                                            msg = Constants.REMOVE + " " + currActor.getNumber() + " " + boardIndex + " ";
+                                            sendMessage(msg);
+
                                             currActor.setRemoved(true);
                                             madeamill = false;
                                             game.updateCurrentTurnPlayer();
@@ -308,6 +236,10 @@ public class BlueMainActivity extends AppCompatActivity {
                                             numberMoves++; // TODO testing
                                             totalMoves++;
                                             p.raiseNumPiecesOnBoard();
+
+                                            msg = Constants.PLACE + " " + currActor.getNumber() + " " + boardIndex + " ";
+                                            sendMessage(msg);
+
                                             currActor.setPosxy(board.getX(mini), board.getY(mini));
                                             currActor.setPlacedIndex(mini);
 
@@ -348,6 +280,9 @@ public class BlueMainActivity extends AppCompatActivity {
                                                     //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                                 }
 
+                                                msg = Constants.REMOVE + " " + currActor.getNumber() + " " + boardIndex + " ";
+                                                sendMessage(msg);
+
                                                 currActor.setRemoved(true);
                                                 madeamill = false;
 
@@ -370,6 +305,10 @@ public class BlueMainActivity extends AppCompatActivity {
                                                 totalMoves++;
                                                 currActor.setPosxy(board.getX(mini), board.getY(mini));
                                                 currActor.setPlacedIndex(mini);
+                                                msg = Constants.SELECT + " " + currActor.getNumber() + " " + srcIndex + " ";
+                                                sendMessage(msg);
+                                                msg = Constants.PLACE + " " + currActor.getNumber() + " " + destIndex + " ";
+                                                sendMessage(msg);
                                                 if (game.madeAMill(destIndex, p.getPlayerToken())) {
                                                     madeamill = true;
                                                 } else {
@@ -435,21 +374,118 @@ public class BlueMainActivity extends AppCompatActivity {
         }
 
     };
+    private int previousInpB = 1324;
+    /**
+     * The Handler that gets information back from the BluetoothChatService
+     */
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Activity activity = getParent();
+            switch (msg.what) {
+                case Constants.MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothChatService.STATE_CONNECTED:
+                            // setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
+                            Log.d(TAG, "handleMessage:  connected");
+                            String message = 3344 + " " + p2.getName() + " " + gameView.getViewWidth() + " " + gameView.getViewHeight();
+                            sendmessage(message);
+
+                            break;
+                        case BluetoothChatService.STATE_CONNECTING:
+                            // setStatus("Connecting...");
+                            Log.d(TAG, "handleMessage: connecting");
+                            break;
+                        case BluetoothChatService.STATE_LISTEN:
+                            break;
+                        case BluetoothChatService.STATE_NONE:
+                            Log.d(TAG, "handleMessage: state none");
+                            Log.d(TAG, "deviceListResult secure: not connected");
+                            //  setStatus("Currently not connected");
+                            break;
+                    }
+                    break;
+                case Constants.MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+                    String writeMessage = new String(writeBuf);
+                    break;
+                case Constants.MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+
+                    String[] m = readMessage.split(" ");
+                    //bluetoothinput(Integer.parseInt(m[0]), m[1]);
+                    if (previousInpB != Constants.UP) {
+                        previousInpB = Integer.parseInt(m[0]);
+                        if (m.length == 3) {
+                            Log.d("recieved :3", Integer.parseInt(m[0]) + " " + Integer.parseInt(m[1]) + " " + Integer.parseInt(m[2]));
+                            bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
+                        } else if (m.length == 4) {
+                            bluetoothinput(Integer.parseInt(m[0]), m[1], Integer.parseInt(m[2]), Integer.parseInt(m[3]));
+                            Log.d("recieved :4", Integer.parseInt(m[0]) + " " + m[1] + " " + Integer.parseInt(m[2]) + " " + Integer.parseInt(m[3]));
+                        } else {
+                            int inps = m.length / 3;
+                            for (int i = 0; i < inps; i++) {
+                                bluetoothinput(Integer.parseInt(m[i * 3]), Integer.parseInt(m[i * 3 + 1]), Integer.parseInt(m[i * 3 + 2]));
+                                Log.d("recieved :5", Integer.parseInt(m[i * 3]) + " " + Integer.parseInt(m[i * 3 + 1]) + " " + Integer.parseInt(m[i * 3 + 2]));
+                            }
+                        }
+                    } else {
+                        if (Integer.parseInt(m[0]) != Constants.UP) {
+                            previousInpB = Integer.parseInt(m[0]);
+                            if (m.length == 3) {
+                                Log.d("recieved :3", Integer.parseInt(m[0]) + " " + Integer.parseInt(m[1]) + " " + Integer.parseInt(m[2]));
+                                bluetoothinput(Integer.parseInt(m[0]), Integer.parseInt(m[1]), Integer.parseInt(m[2]));
+                            } else if (m.length == 4) {
+                                bluetoothinput(Integer.parseInt(m[0]), m[1], Integer.parseInt(m[2]), Integer.parseInt(m[3]));
+                                Log.d("recieved :4", Integer.parseInt(m[0]) + " " + m[1] + " " + Integer.parseInt(m[2]) + " " + Integer.parseInt(m[3]));
+                            } else {
+                                int inps = m.length / 3;
+                                for (int i = 0; i < inps; i++) {
+                                    bluetoothinput(Integer.parseInt(m[i * 3]), Integer.parseInt(m[i * 3 + 1]), Integer.parseInt(m[i * 3 + 2]));
+                                    Log.d("recieved :5", Integer.parseInt(m[i * 3]) + " " + Integer.parseInt(m[i * 3 + 1]) + " " + Integer.parseInt(m[i * 3 + 2]));
+                                }
+                            }
+                        }
+                    }
+                    // TODO: 06/09/2016 message recieved handle bluetoth input
+                    break;
+                case Constants.MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+                    if (null != activity) {
+                        Toast.makeText(activity, "Connected to "
+                                + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case Constants.MESSAGE_TOAST:
+                    if (null != activity) {
+                        Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        }
+
+
+    };
 
     private void bluetoothinput(int msg, String name, int width, int height) {
         scalex = ((float) gameView.getViewWidth() / (float) width);
         scaley = ((float) gameView.getViewHeight() / (float) height);
 
-        if (myturn) {
-            p1.setName("you");
-            p2.setName(name);
-            top.setText("you");
-            bottom.setText(name);
-        } else {
-            p1.setName(name);
-            p2.setName("you");
-            top.setText(name + " start");
-            bottom.setText("you");
+        if (msg == 3344) {
+            if (myturn) {
+                p1.setName("you");
+                p2.setName(name);
+                top.setText("you");
+                bottom.setText(name);
+            } else {
+                p1.setName(name);
+                p2.setName("you");
+                top.setText(name + " start");
+                bottom.setText("you");
+            }
         }
 
     }
@@ -459,13 +495,205 @@ public class BlueMainActivity extends AppCompatActivity {
     }
 
     private void bluetoothinput(int msg, int x, int y) {
-
         //Log.d(TAG, "bluetoothinput: x = " + x + " y = " + y);
-        x = (int) (x * scalex);
-        y = (int) (y * scaley);
-
+        if (msg == Constants.DOWN || msg == Constants.UP || msg == Constants.MOVE) {
+            x = (int) (x * scalex);
+            y = (int) (y * scaley);
+        }
         //Log.d(TAG, "scaled to : x = " + x + " y = " + y);
         switch (msg) {
+            case Constants.SELECT:
+                if (madeamill) {
+                    currentBlueActor = game.getOpponentPlayer().getActorByNumber(x);
+                } else {
+                    currentBlueActor = game.getCurrentTurnPlayer().getActorByNumber(x);
+                }
+
+                break;
+            case Constants.PLACE:
+                if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
+                    // Log.d("placing phase", "onTouchEvent: removing");
+                    try {
+                        game.placePieceOfPlayer(y, game.getCurrentTurnPlayer().getPlayerToken());
+                        numberMoves++; // TODO testing
+                        totalMoves++;
+                        game.getCurrentTurnPlayer().raiseNumPiecesOnBoard();
+                        currentBlueActor.setPosxy(board.getX(y), board.getY(y));
+                        currentBlueActor.setPlacedIndex(y);
+
+                        if (game.madeAMill(y, game.getCurrentTurnPlayer().getPlayerToken())) {
+                            madeamill = true;
+                            currentBlueActor = null;
+                            System.out.println("You made a mill. You can remove a piece of your oponent: ");
+                        } else {
+                            System.out.println("changed current Player");
+                            game.updateCurrentTurnPlayer();
+
+                            //TODO : send and update to bluetooth device
+                        }
+                    } catch (GameException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    int srcIndex, destIndex;
+                    srcIndex = currentBlueActor.getPlacedIndex();
+                    destIndex = y;
+                    System.out.println("Move piece from " + srcIndex + " to " + destIndex);
+
+                    int result;
+                    try {
+                        if ((result = game.movePieceFromTo(srcIndex, destIndex, game.getCurrentTurnPlayer().getPlayerToken())) == Game.VALID_MOVE) {
+                            numberMoves++; // TODO testing
+                            totalMoves++;
+                            currentBlueActor.setPosxy(board.getX(destIndex), board.getY(destIndex));
+                            currentBlueActor.setPlacedIndex(destIndex);
+                            if (game.madeAMill(destIndex, game.getCurrentTurnPlayer().getPlayerToken())) {
+                                madeamill = true;
+                                currentBlueActor = null;
+                            } else {
+                                game.updateCurrentTurnPlayer();
+                                System.out.println("changed current Player");
+
+                                //TODO : send and update to bluetooth device
+
+                            }
+                        } else {
+                            currentBlueActor.setPosxy(board.getX(srcIndex), board.getY(srcIndex));
+                            System.out.println("Invalid move. Error code: " + result);
+
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+                if (game.isTheGameOver() || totalMoves >= MAX_MOVES) {
+                    String finishLine;
+                    String finishDesc;
+                    if (!game.isTheGameOver()) {
+                        System.out.println("Draw!");
+                        draws++;
+                        finishLine = "Game Draw";
+                        finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                                "\n" +
+                                " Would you like to play a new game";
+                        showDialog(finishLine, finishDesc);
+                    } else {
+                        System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
+                        if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
+                            p1Wins++;
+                            finishLine = game.getPlayer1().getName() + " Win!!";
+                        } else {
+                            p2Wins++;
+                            finishLine = game.getPlayer2().getName() + " Win!!";
+                        }
+                        finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                        showDialog(finishLine, finishDesc);
+                    }
+                    numberMoves = 0;
+                    totalMoves = 0;
+                    //reset the game
+                }
+                break;
+            case Constants.REMOVE:
+                if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
+                    // Log.d("placing phase", "onTouchEvent: removing");
+                    try {
+                        if (madeamill) {
+                            // Log.d("removing at pos", ""+ mini);
+                            Token opponentPlayer = (game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                            if (game.removePiece(y, opponentPlayer)) {
+                                System.out.println("removed piece at " + y);
+                                if (opponentPlayer == Token.PLAYER_1) {
+                                    ++removedPieceP1;
+                                    currentBlueActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                                    //  Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
+
+                                } else {
+                                    ++removedPieceP2;
+                                    currentBlueActor.setPosxy(gameView.getP2rx(), gameView.getP2ry(removedPieceP2));
+                                    //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
+                                }
+
+                                currentBlueActor.setRemoved(true);
+                                madeamill = false;
+                                game.updateCurrentTurnPlayer();
+
+                                //TODO : send and update to bluetooth device
+
+                            } else {
+                                System.out.println("You can't remove a piece from there. Try again");
+                            }
+                        }
+                    } catch (GameException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    // System.out.println("The pieces are all placed. Starting the fun part... ");
+                    try {
+                        if (!game.isTheGameOver() && numberMoves < MAX_MOVES) {
+                            if (madeamill) {
+                                Player p = game.getCurrentTurnPlayer();
+                                currentBlueActor = p.getActorByNumber(x);
+                                // Log.d("removing at pos", ""+ mini);
+                                Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
+                                if (game.removePiece(y, opponentPlayer)) {
+                                    System.out.println("removed piece at " + y);
+                                    if (opponentPlayer == Token.PLAYER_1) {
+                                        ++removedPieceP1;
+                                        currentBlueActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
+                                        //  Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
+
+                                    } else {
+                                        ++removedPieceP2;
+                                        currentBlueActor.setPosxy(gameView.getP2rx(), gameView.getP2ry(removedPieceP2));
+                                        //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
+                                    }
+
+                                    currentBlueActor.setRemoved(true);
+                                    madeamill = false;
+
+
+                                    game.updateCurrentTurnPlayer();
+
+                                    //TODO : send and update to bluetooth device
+
+                                } else {
+                                    System.out.println("You can't remove a piece from there. Try again");
+                                }
+                            }
+                        }
+                        if (game.isTheGameOver() || totalMoves >= MAX_MOVES) {
+                            String finishLine;
+                            String finishDesc;
+                            if (!game.isTheGameOver()) {
+                                System.out.println("Draw!");
+                                draws++;
+                                finishLine = "Game Draw";
+                                finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                                        "\n" +
+                                        " Would you like to play a new game";
+                                showDialog(finishLine, finishDesc);
+                            } else {
+                                System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
+                                if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
+                                    p1Wins++;
+                                    finishLine = game.getPlayer1().getName() + " Win!!";
+                                } else {
+                                    p2Wins++;
+                                    finishLine = game.getPlayer2().getName() + " Win!!";
+                                }
+                                finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                                showDialog(finishLine, finishDesc);
+                            }
+                            numberMoves = 0;
+                            totalMoves = 0;
+                        }
+                    } catch (GameException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                break;
             case Constants.DOWN:
                 //handle ACTION_DOWN from other device
 

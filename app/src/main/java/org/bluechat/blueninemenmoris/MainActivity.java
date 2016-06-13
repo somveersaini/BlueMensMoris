@@ -362,7 +362,8 @@ public class MainActivity extends AppCompatActivity {
             game = new LocalGame();
             p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
             if(getIntent().getBooleanExtra("isAI",false)){
-                p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, 4);
+                int depth = getIntent().getIntExtra("level", 3);
+                p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, depth);
             }else {
                 p2 = new HumanPlayer("kuku", Token.PLAYER_2, 9);
             }

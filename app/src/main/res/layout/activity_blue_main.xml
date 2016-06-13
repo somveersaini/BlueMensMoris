@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@drawable/txtbg"
         android:gravity="center"
         android:onClick="startblue"
         android:text="Somveer saini"
@@ -31,6 +32,7 @@
         android:layout_height="0dp"
         android:layout_below="@+id/gameView"
         android:layout_weight="1"
+        android:background="@drawable/textbg"
         android:gravity="center"
         android:text="Somveer saini"
         android:textSize="15sp" />

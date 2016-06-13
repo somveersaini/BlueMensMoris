@@ -72,9 +72,7 @@ public class StartActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.aiplayer:
-                intent = new Intent(this, MainActivity.class);
-                intent.putExtra("isAI", true);
-                startActivity(intent);
+                setContentView(R.layout.singleplayer);
                 break;
             case R.id.setting:
                // startActivity(new Intent(this, AiMainActivity.class));
@@ -108,4 +106,27 @@ public class StartActivity extends AppCompatActivity {
         }
     }
 
+    public void levelchooser(View view) {
+        int id = view.getId();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("isAI", true);
+        setContentView(R.layout.activity_start);
+        switch (id) {
+            case R.id.easy:
+                intent.putExtra("level", 3);
+                startActivity(intent);
+                break;
+            case R.id.medium:
+                intent.putExtra("level", 4);
+                startActivity(intent);
+                break;
+            case R.id.hard:
+                intent.putExtra("level", 5);
+                startActivity(intent);
+                break;
+            default:
+                startActivity(intent);
+                break;
+        }
+    }
 }

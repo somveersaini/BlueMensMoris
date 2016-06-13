@@ -1,82 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/appbg"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
+        android:id="@+id/gameset1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Game Settings"
-        android:textSize="20sp"
-        android:textColor="#ffffff"
-        android:padding="4dp"
-        android:id="@+id/gameset1"
-        android:layout_marginBottom="15dp"
-        android:typeface="serif"
-        android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="15dp"
+        android:gravity="center_horizontal"
+        android:padding="4dp"
+        android:text="Game Settings"
+        android:textColor="#000"
+        android:textSize="20sp"
+        android:typeface="serif"
         />
 
 
     <Switch
+        android:id="@+id/switch2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:typeface="serif"
-        android:padding="2dp"
-        android:textSize="20sp"
-        android:text="Game Sounds  "
-        android:id="@+id/switch2"
-        android:textColor="#ffffff"
         android:layout_marginBottom="20dp"
-        android:onClick="buttonsettings"/>
+        android:onClick="buttonsettings"
+        android:padding="2dp"
+        android:text="Game Sounds  "
+        android:textColor="#000"
+        android:textSize="20sp"
+        android:typeface="serif" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="10"
+        android:orientation="horizontal"
         android:padding="2dp"
-        android:orientation="horizontal">
+        android:weightSum="10">
         <TextView
+            android:id="@+id/gameset2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settingsBoard"
-            android:textSize="20sp"
-            android:id="@+id/gameset2"
             android:layout_weight="5"
+            android:text="@string/settingsBoard"
+            android:textColor="#000"
+            android:textSize="20sp"
             android:typeface="serif"
-            android:textColor="#ffffff"
             />
 
         <EditText
+            android:id="@+id/numcol"
             android:layout_width="wrap_content"
-            android:textColor="#ffffff"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:maxLines="1"
             android:hint="@string/hintcolumn"
             android:maxLength="3"
-            android:id="@+id/numcol"
+            android:maxLines="1"
+            android:textColor="#ffffff"
             />
         <TextView
+            android:id="@+id/gameset3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="X"
-            android:id="@+id/gameset3"
-            android:textSize="20sp"
             android:layout_weight="1"
-            android:typeface="serif"
+            android:text="X"
             android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:typeface="serif"
             />
         <EditText
+            android:id="@+id/numrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:hint="@string/hintrow"
-            android:maxLines="1"
-            android:maxLength="3"
             android:layout_weight="2"
-            android:id="@+id/numrow"
+            android:hint="@string/hintrow"
+            android:maxLength="3"
+            android:maxLines="1"
+            android:textColor="#ffffff"
             />
     </LinearLayout>
 
