@@ -20,6 +20,10 @@ public class StartActivity extends AppCompatActivity {
         ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
         ((Button) findViewById(R.id.netPlay)).setTypeface(typeface);
         ((Button) findViewById(R.id.bluePlay)).setTypeface(typeface);
+
+        Settings.init(getApplicationContext());
+
+
     }
 
     @Override
@@ -62,9 +66,10 @@ public class StartActivity extends AppCompatActivity {
 //                .duration(700)
 //                .playOn(findViewById(R.id.trophy));
     }
+
     public void buttonhandler(View view) {
         int id = view.getId();
-      //  sp.play(btnbtn, 1,1,1, 0,1);
+        Settings.buttonSound();
         switch(id) {
             case R.id.play:
                 Intent intent = new Intent(this, MainActivity.class);
@@ -75,7 +80,7 @@ public class StartActivity extends AppCompatActivity {
                 setContentView(R.layout.singleplayer);
                 break;
             case R.id.setting:
-               // startActivity(new Intent(this, AiMainActivity.class));
+                startActivity(new Intent(this, Settings.class));
                 break;
             case R.id.netPlay:
                 startActivity(new Intent(this, NetMainActivity.class));

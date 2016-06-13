@@ -43,42 +43,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="5"
-            android:text="@string/settingsBoard"
+            android:text="Player Name"
             android:textColor="#000"
             android:textSize="20sp"
             android:typeface="serif"
             />
 
         <EditText
-            android:id="@+id/numcol"
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="@string/hintcolumn"
+            android:layout_weight="5"
+            android:hint="Your Name"
             android:maxLength="3"
             android:maxLines="1"
             android:textColor="#ffffff"
             />
-        <TextView
-            android:id="@+id/gameset3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="X"
-            android:textColor="#ffffff"
-            android:textSize="20sp"
-            android:typeface="serif"
-            />
-        <EditText
-            android:id="@+id/numrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="@string/hintrow"
-            android:maxLength="3"
-            android:maxLines="1"
-            android:textColor="#ffffff"
-            />
+
     </LinearLayout>
 
 

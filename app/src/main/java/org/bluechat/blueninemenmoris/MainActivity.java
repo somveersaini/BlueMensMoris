@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     Actor actionActor;
     Handler handler;
     long HANDLER_DELAY = 10;
-    TextView top;
-    TextView bottom;
+    TextView top, topdesc;
+    TextView bottom, bottomdesc;
     private Board board;
     private GameView gameView;
     private int numberGames = 1, fixedNumberGames = 1, numberMoves = 0, draws = 0, p1Wins = 0, p2Wins = 0;
@@ -58,14 +58,12 @@ public class MainActivity extends AppCompatActivity {
             int pointerId = event.getPointerId(index);
 
 
+
             if (action == MotionEvent.ACTION_DOWN) {
 
                 currenttime = (int) Math.abs(System.currentTimeMillis());
                 currenttime = Math.abs(currenttime);
-                // System.out.println(currenttime + " " + starttime);
-                if (Math.abs(currenttime - starttime) < 300) {
-                    // showsolution();
-                }
+
                 if (mVelocityTracker == null) {
                     mVelocityTracker = VelocityTracker.obtain();
                 } else {
@@ -131,6 +129,14 @@ public class MainActivity extends AppCompatActivity {
                 if (min > 80) {
                     currActor = null;
                 } else {
+                    Settings.selectSound();
+                    if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                        topdesc.setText("Playing...");
+                        bottomdesc.setText("Waiting");
+                    }else {
+                        bottomdesc.setText("Playing...");
+                        topdesc.setText("Waiting");
+                    }
                     //  Log.d("selected opponent piece", " " + mini);
                 }
                 starttime = currenttime;
@@ -200,9 +206,18 @@ public class MainActivity extends AppCompatActivity {
                                             //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                         }
 
+                                        Settings.removeSound();
+
                                         currActor.setRemoved(true);
                                         madeamill = false;
                                         game.updateCurrentTurnPlayer();
+                                        if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                            topdesc.setText("Playing...");
+                                            bottomdesc.setText("Waiting");
+                                        }else {
+                                            bottomdesc.setText("Playing...");
+                                            topdesc.setText("Waiting");
+                                        }
                                         if (game.getCurrentTurnPlayer().isAI()) {
                                             new Asyncaiplay().execute();
                                         }
@@ -218,12 +233,30 @@ public class MainActivity extends AppCompatActivity {
                                         currActor.setPosxy(board.getX(mini), board.getY(mini));
                                         currActor.setPlacedIndex(mini);
 
+
+
                                         if (game.madeAMill(boardIndex, p.getPlayerToken())) {
                                             madeamill = true;
+                                            Settings.millSound();
+                                            if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                                topdesc.setText("Mill!! Choose " + p2.getName() + "'s stone to remove");
+                                                bottomdesc.setText("Watching..");
+                                            }else {
+                                                bottomdesc.setText("Mill!! Choose " + p1.getName() +"'s stone to remove");
+                                                topdesc.setText("Watching..");
+                                            }
                                             System.out.println("You made a mill. You can remove a piece of your oponent: ");
                                         } else {
                                             System.out.println("changed current Player");
                                             game.updateCurrentTurnPlayer();
+                                            Settings.placeSound();
+                                            if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                                topdesc.setText("Your turn");
+                                                bottomdesc.setText("Waiting..");
+                                            }else {
+                                                bottomdesc.setText("Your turn");
+                                                topdesc.setText("Waiting..");
+                                            }
 
                                             if (game.getCurrentTurnPlayer().isAI()) {
                                                 new Asyncaiplay().execute();
@@ -261,6 +294,14 @@ public class MainActivity extends AppCompatActivity {
                                             madeamill = false;
 
                                             game.updateCurrentTurnPlayer();
+                                            Settings.removeSound();
+                                            if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                                topdesc.setText("Your turn!!");
+                                                bottomdesc.setText("Waiting...");
+                                            }else {
+                                                bottomdesc.setText("Your turn!!");
+                                                topdesc.setText("Waiting...");
+                                            }
                                             if (game.getCurrentTurnPlayer().isAI()) {
                                                 new Asyncaiplay().execute();
                                             }
@@ -281,9 +322,27 @@ public class MainActivity extends AppCompatActivity {
                                             currActor.setPlacedIndex(mini);
                                             if (game.madeAMill(destIndex, p.getPlayerToken())) {
                                                 madeamill = true;
+
+                                                Settings.millSound();
+                                                if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                                    topdesc.setText("Mill!! Choose " + p2.getName() + "'s stone to remove");
+                                                    bottomdesc.setText("Watching..");
+                                                }else {
+                                                    bottomdesc.setText("Mill!! Choose " + p1.getName() +"'s stone to remove");
+                                                    topdesc.setText("Watching..");
+                                                }
+
                                             } else {
                                                 game.updateCurrentTurnPlayer();
                                                 System.out.println("changed current Player");
+                                                Settings.place1Sound();
+                                                if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                                                    topdesc.setText("Your turn");
+                                                    bottomdesc.setText("Waiting...");
+                                                }else {
+                                                    bottomdesc.setText("Your turn");
+                                                    topdesc.setText("Waiting...");
+                                                }
                                                 if (game.getCurrentTurnPlayer().isAI()) {
                                                     new Asyncaiplay().execute();
                                                 }
@@ -306,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
                                                 " Would you like to play a new game";
                                         showDialog(finishLine, finishDesc);
                                     } else {
+                                        Settings.winSound();
                                         System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
                                         if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
                                             p1Wins++;
@@ -333,6 +393,14 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             currActor.setPosxy(board.getX(currActor.getPlacedIndex()), board.getY(currActor.getPlacedIndex()));
                         }
+                        Settings.moveSound();
+                        if(game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1){
+                            topdesc.setText("Your Turn..");
+                            bottomdesc.setText("Waiting...");
+                        }else {
+                            bottomdesc.setText("Your turn..");
+                            topdesc.setText("Waiting...");
+                        }
                     }
                 } else {
                     currActor = null;
@@ -357,15 +425,19 @@ public class MainActivity extends AppCompatActivity {
 
         top = (TextView) findViewById(R.id.top);
         bottom = (TextView) findViewById(R.id.bottom);
+        topdesc = (TextView) findViewById(R.id.topdesc);
+        bottomdesc = (TextView) findViewById(R.id.bottomdesc);
+
+        Settings.load(getApplicationContext());
 
         try {
             game = new LocalGame();
-            p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
+            p1 = new HumanPlayer(Settings.pName, Token.PLAYER_1,9);
             if(getIntent().getBooleanExtra("isAI",false)){
                 int depth = getIntent().getIntExtra("level", 3);
                 p2 = new MinimaxAIPlayer(Token.PLAYER_2, 9, depth);
             }else {
-                p2 = new HumanPlayer("kuku", Token.PLAYER_2, 9);
+                p2 = new HumanPlayer("Opponent", Token.PLAYER_2, 9);
             }
             game.setPlayers(p1,p2);
             board = game.getGameBoard();
@@ -373,8 +445,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (GameException e) {
             e.printStackTrace();
         }
-        top.setText(p1.getName() + " ");
-        bottom.setText(p2.getName() + " ");
+        top.setText(p1.getName());
+        bottom.setText(p2.getName());
+        topdesc.setText("Your turn");
+        bottomdesc.setText("Waiting..");
         gameView.setOnTouchListener(gameListner);
 
     }
