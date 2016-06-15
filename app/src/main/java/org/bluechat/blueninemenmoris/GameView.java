@@ -43,13 +43,21 @@ public class GameView extends View {
     private  long gamesStart;
     private BitmapDrawable graphic;
     private int starttimeinsec = 0;
+    int startPieceX ;
+    int startPieceY1 ;
+    int startPieceY2;
+
+    int  squareStartY;
+    int squareStartX;
+
+
     private Runnable r = new Runnable() {
 
         public void run() {
             invalidate();
         }
     };
-    public static boolean running = false;
+
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
@@ -120,17 +128,17 @@ public class GameView extends View {
         viewHeight = yNew;
         Log.d("gameview", viewHeight +  " " + viewWidth);
 
-        int  squareStartY =   (viewHeight - viewWidth)/2;
-        int squareStartX = viewWidth / 8;
+        squareStartY =   (viewHeight - viewWidth)/2;
+        squareStartX = viewWidth / 8;
 
         board.setPosXY(squareStartX,squareStartY);
 
 
         squareSpace = squareStartY;
 
-        int startPieceX = viewWidth/10;
-        int startPieceY1 = squareStartY;
-        int startPieceY2 = viewWidth + startPieceY1;
+        startPieceX = viewWidth/10;
+        startPieceY1 = squareStartY;
+        startPieceY2 = viewWidth + startPieceY1;
         game.getPlayer1().setActors(startPieceX,startPieceY1);
         game.getPlayer2().setActors(startPieceX,startPieceY2);
 
@@ -201,17 +209,18 @@ public class GameView extends View {
            // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
         }
 
-        if(running) {
-            Actor[] actors1 = game.getPlayer1().getActors();
-            for (Actor actor : actors1) {
+        Actor[] actors1 = game.getPlayer1().getActors();
+        for (Actor actor : actors1) {
+            if(actor != null) {
                 c.drawBitmap(bitmap, actor.getPosx() - wt, actor.getPosy() - ht, null);
             }
+        }
 
-            Actor[] actors2 = game.getPlayer2().getActors();
-            for (Actor actor : actors2) {
+        Actor[] actors2 = game.getPlayer2().getActors();
+        for (Actor actor : actors2) {
+            if(actor != null) {
                 c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht, null);
             }
-
         }
        // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
@@ -219,15 +228,9 @@ public class GameView extends View {
         h.postDelayed(r, FRAME_RATE);
     }
     public void stopHandler(){
-        h.removeCallbacks(r);
+        h.removeCallbacksAndMessages(null);
     }
 
-    public void start(){
-        running = true;
-    }
-    public void stop(){
-        running = false;
-    }
 
     public Board getBoard() {
         return board;
@@ -243,6 +246,23 @@ public class GameView extends View {
 
     public int getViewWidth() {
         return viewWidth;
+    }
+
+    public int getStartPieceX() {
+        return startPieceX;
+    }
+    public int getStartPieceY1() {
+        return startPieceY1;
+    }
+    public int getStartPieceY2 (){
+        return startPieceY2;
+    }
+
+    public int getSquareStartX() {
+        return squareStartX;
+    }
+    public int getSquareStartY() {
+        return squareStartY;
     }
 
     public LocalGame getGame() {

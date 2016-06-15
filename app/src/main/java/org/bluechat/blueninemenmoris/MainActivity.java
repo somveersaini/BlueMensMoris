@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean madeamill = false;
     private int offsetX;
     private int offsetY;
+
+    public static boolean running = false;
+
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -427,11 +430,6 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler();
         gameView = (GameView)findViewById(R.id.gameView);
 
-       init();
-
-    }
-
-    public void init(){
         top = (TextView) findViewById(R.id.top);
         bottom = (TextView) findViewById(R.id.bottom);
         topdesc = (TextView) findViewById(R.id.topdesc);
@@ -441,8 +439,7 @@ public class MainActivity extends AppCompatActivity {
         bottom.setTypeface(typeface);
         bottomdesc.setTypeface(typeface);
 
-        gameView.running = false;
-        gameView.stopHandler();
+
         Settings.load(getApplicationContext());
 
         try {
@@ -460,8 +457,24 @@ public class MainActivity extends AppCompatActivity {
         } catch (GameException e) {
             e.printStackTrace();
         }
-        gameView.running = true;
         refresh();
+
+    }
+
+    public void init(){
+        game = new LocalGame();
+
+        p1.reset();
+        p1.setActors(gameView.getStartPieceX(), gameView.getStartPieceY1());
+        p2.reset();
+        p2.setActors(gameView.getStartPieceX(), gameView.getStartPieceY2());
+        game.setPlayers(p1,p2);
+        board = game.getGameBoard();
+        board.setPosXY(gameView.getSquareStartX(),gameView.getSquareStartY());
+        gameView.setGame(game);
+        gameView.init();
+        refresh();
+
     }
     public void refresh(){
         p1.setName(Settings.pName);
@@ -656,6 +669,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //save the achiewments
+                running = false;
                 gameView.stopHandler();
                 init();
                 alertDialog.cancel();
