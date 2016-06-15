@@ -25,38 +25,37 @@
         android:layout_marginBottom="45dp"
         android:layout_alignParentTop="true" />
 
-    <TextView
+    <Button
+        android:id="@+id/set"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Game"
-        android:textSize="25sp"
+        android:background="@null"
         android:layout_below="@+id/gamename"
-        android:gravity="center"
-        android:id="@+id/finishline"
-        android:background="@null"
-        android:layout_marginBottom="10dp"
         android:layout_centerHorizontal="true"
-        />
-    <TextView
+        android:textSize="30sp"
+        android:textColor="@color/colorAccent"
+        android:text="Settings"
+        android:scaleType="fitCenter"  />
+    <Button
+        android:id="@+id/helps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Game"
-        android:textSize="25sp"
-        android:layout_below="@+id/finishline"
-        android:id="@+id/finishdescription"
-        android:gravity="center"
         android:background="@null"
-        android:layout_marginBottom="25dp"
+        android:layout_below="@+id/set"
         android:layout_centerHorizontal="true"
-        />
+        android:textSize="30sp"
+        android:textColor="@color/colorAccent"
+        android:text="Help"
+        android:scaleType="fitCenter"  />
     <Button
         android:id="@+id/finishnewgame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:layout_below="@+id/finishdescription"
+        android:layout_below="@+id/helps"
         android:layout_centerHorizontal="true"
         android:textSize="30sp"
+        android:onClick="buttonhandler"
         android:textColor="@color/colorAccent"
         android:text="New Game"
         android:scaleType="fitCenter"  />

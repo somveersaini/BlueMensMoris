@@ -1,7 +1,10 @@
 package org.bluechat.blueninemenmoris;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -416,18 +420,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         typeface = Typeface.createFromAsset(getAssets(),
-                "Gasalt-Black.ttf");
+                "CarterOne.ttf");
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
 
         handler = new Handler();
         gameView = (GameView)findViewById(R.id.gameView);
 
+       init();
+
+    }
+
+    public void init(){
         top = (TextView) findViewById(R.id.top);
         bottom = (TextView) findViewById(R.id.bottom);
         topdesc = (TextView) findViewById(R.id.topdesc);
         bottomdesc = (TextView) findViewById(R.id.bottomdesc);
+        top.setTypeface(typeface);
+        topdesc.setTypeface(typeface);
+        bottom.setTypeface(typeface);
+        bottomdesc.setTypeface(typeface);
 
+        gameView.running = false;
+        gameView.stopHandler();
         Settings.load(getApplicationContext());
 
         try {
@@ -445,14 +460,18 @@ public class MainActivity extends AppCompatActivity {
         } catch (GameException e) {
             e.printStackTrace();
         }
+        gameView.running = true;
+        refresh();
+    }
+    public void refresh(){
+        p1.setName(Settings.pName);
         top.setText(p1.getName());
         bottom.setText(p2.getName());
         topdesc.setText("Your turn");
         bottomdesc.setText("Waiting..");
         gameView.setOnTouchListener(gameListner);
-
+        gameView.invalidate();
     }
-
     public void aiPlay(){
         try {
             MinimaxAIPlayer p = (MinimaxAIPlayer) game.getPlayer2();
@@ -552,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("Draw!");
                         draws++;
                         final String finishLine = "Game Draw";
-                        final String finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
+                        final String finishDesc = "Opps!!\n No one wins\ncurrent game is a draw.\n" +
                                 "\n" +
                                 " Would you like to play a new game";
                         runOnUiThread(new Runnable() {
@@ -595,20 +614,79 @@ public class MainActivity extends AppCompatActivity {
         desc.setText(finishdesc);
         alertDialogBuilder.setView(view);
         final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
         finishnewgame.setTypeface(typeface);
+
+        alertDialog.setCancelable(false);
 
         finishnewgame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //save the achiewments
-
+                gameView.stopHandler();
+                init();
                 alertDialog.cancel();
             }
         });
         //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
         alertDialog.show();
+    }
+
+    public void options(View v) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.opt, null);
+        TextView tv1 = (TextView) view.findViewById(R.id.gamename);
+        tv1.setTypeface(typeface1);
+
+        alertDialogBuilder.setView(view);
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
+        finishnewgame.setTypeface(typeface);
+        Button settings = (Button) view.findViewById(R.id.set);
+        settings.setTypeface(typeface);
+
+        finishnewgame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //save the achiewments
+                gameView.stopHandler();
+                init();
+                alertDialog.cancel();
+            }
+        });
+
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, Settings.class));
+                alertDialog.cancel();
+            }
+        });
+        Button helps = (Button) view.findViewById(R.id.helps);
+        helps.setTypeface(typeface);
+
+        helps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AboutActivity.class));
+                alertDialog.cancel();
+            }
+        });
+        //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+        alertDialog.show();
+    }
+
+    public void onResume(){
+        super.onResume();
+        refresh();
     }
     private class Asyncaiplay extends AsyncTask<Void, Void, Void>
     {
@@ -616,8 +694,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            top.setText(game.getPlayer1().getName() + "\n" + "Waiting..");
-            bottom.setText(game.getPlayer2().getName() + "\n" + "Thinking..");
+            topdesc.setText("Waiting..");
+            bottomdesc.setText("Thinking..");
             gameView.setEnabled(false);
         }
         @Override
@@ -635,8 +713,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             //this method will be running on UI thread
-            top.setText(game.getPlayer1().getName() + "\n" + "Play..");
-            bottom.setText(game.getPlayer2().getName() + "\n" + "Waiting..");
+            topdesc.setText("Your turn");
+            bottomdesc.setText("Waiting..");
             gameView.setEnabled(true);
             gameView.invalidate();
         }

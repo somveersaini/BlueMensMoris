@@ -6,20 +6,27 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 public class StartActivity extends AppCompatActivity {
 
     private boolean start = true;
+    Typeface typeface, typeface1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-        Typeface typeface = Typeface.createFromAsset(getAssets(),
-                "Gasalt-Black.ttf");
+        typeface = Typeface.createFromAsset(getAssets(),
+                "CarterOne.ttf");
+        typeface1 = Typeface.createFromAsset(getAssets(),
+                "future.otf");
         ((Button) findViewById(R.id.play)).setTypeface(typeface);
         ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
         ((Button) findViewById(R.id.netPlay)).setTypeface(typeface);
         ((Button) findViewById(R.id.bluePlay)).setTypeface(typeface);
+        ((TextView) findViewById(R.id.app)).setTypeface(typeface1);
 
         Settings.init(getApplicationContext());
 
@@ -50,6 +57,14 @@ public class StartActivity extends AppCompatActivity {
 
     public void onResume(){
         super.onResume();
+        setContentView(R.layout.activity_start);
+        ((Button) findViewById(R.id.play)).setTypeface(typeface);
+        ((Button) findViewById(R.id.aiplayer)).setTypeface(typeface);
+        ((Button) findViewById(R.id.netPlay)).setTypeface(typeface);
+        ((Button) findViewById(R.id.bluePlay)).setTypeface(typeface);
+        ((TextView) findViewById(R.id.app)).setTypeface(typeface1);
+
+
 //        YoYo.with(Techniques.SlideInDown)
 //                .duration(500)
 //                .playOn(findViewById(R.id.play));
@@ -115,7 +130,8 @@ public class StartActivity extends AppCompatActivity {
         int id = view.getId();
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("isAI", true);
-        setContentView(R.layout.activity_start);
+
+
         switch (id) {
             case R.id.easy:
                 intent.putExtra("level", 3);

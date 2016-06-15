@@ -49,6 +49,7 @@ public class GameView extends View {
             invalidate();
         }
     };
+    public static boolean running = false;
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
@@ -200,16 +201,18 @@ public class GameView extends View {
            // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
         }
 
-        Actor[] actors1 = game.getPlayer1().getActors();
-        for (Actor actor : actors1) {
-            c.drawBitmap(bitmap, actor.getPosx() - wt, actor.getPosy() - ht , null);
-        }
+        if(running) {
+            Actor[] actors1 = game.getPlayer1().getActors();
+            for (Actor actor : actors1) {
+                c.drawBitmap(bitmap, actor.getPosx() - wt, actor.getPosy() - ht, null);
+            }
 
-        Actor[] actors2 = game.getPlayer2().getActors();
-        for (Actor actor : actors2) {
-            c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht , null);
-        }
+            Actor[] actors2 = game.getPlayer2().getActors();
+            for (Actor actor : actors2) {
+                c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht, null);
+            }
 
+        }
        // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
 
@@ -217,6 +220,13 @@ public class GameView extends View {
     }
     public void stopHandler(){
         h.removeCallbacks(r);
+    }
+
+    public void start(){
+        running = true;
+    }
+    public void stop(){
+        running = false;
     }
 
     public Board getBoard() {

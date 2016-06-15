@@ -55,9 +55,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:hint="Your Name"
-            android:maxLength="3"
+            android:maxLength="20"
             android:maxLines="1"
-            android:textColor="#ffffff"
+            android:textColor="#000"
             />
 
     </LinearLayout>

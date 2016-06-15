@@ -63,11 +63,12 @@ public class Settings extends Activity {
             ssfx.setChecked(true);
         }
         load(this.getApplicationContext());
+        name.setText(pName);
     }
 
     public static void init(Context context) {
         sp = new SoundPool(9, AudioManager.STREAM_MUSIC, 0);
-        click = sp.load(context, R.raw.click, 1);
+        click = sp.load(context, R.raw.btnbtn, 1);
         move = sp.load(context, R.raw.move, 1);
         phasechange = sp.load(context, R.raw.phasechange, 1);
         place = sp.load(context, R.raw.place, 1);
@@ -137,7 +138,9 @@ public class Settings extends Activity {
         super.onBackPressed();
         if(name.getText() != null) {
             String playername = name.getText().toString();
-            if(playername.length() < 20) {
+            if(playername.length() == 0) {
+                pName = "Sam";
+            }else{
                 Log.d(TAG, "onBackPressed: saving name " + playername);
                 pName = playername;
             }
@@ -158,7 +161,7 @@ public class Settings extends Activity {
     }
     static void placeSound() {
         if (sfx) {
-            sp.play(place, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(move,1f, 1f, 1, 0, 1);
         }
     }
     static void place1Sound() {
