@@ -5,7 +5,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,8 +51,8 @@ public class BlueMainActivity extends AppCompatActivity {
     Player p1, p2;
     Handler handler;
     long HANDLER_DELAY = 10;
-    TextView top;
-    TextView bottom;
+    TextView top, topdesc;
+    TextView bottom, bottomdesc;
     String myname = null;
     float scalex = 1;
     float scaley = 1;
@@ -71,12 +74,13 @@ public class BlueMainActivity extends AppCompatActivity {
     private boolean madeamill = false;
     private int offsetX;
     private int offsetY;
+    private Token mytoken = Token.NO_PLAYER;
     View.OnTouchListener gameListner = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             String msg;
-            if (game.getCurrentTurnPlayer().getName().equals("you")) {
+            if (game.getCurrentTurnPlayer().getPlayerToken() == mytoken) {
                 if (action == MotionEvent.ACTION_DOWN) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
@@ -348,10 +352,6 @@ public class BlueMainActivity extends AppCompatActivity {
                                             showDialog(finishLine, finishDesc);
                                         }
                                         numberMoves = 0;
-                                        game = new LocalGame();
-                                        p1.reset();
-                                        p2.reset();
-                                        game.setPlayers(p1, p2);
                                     }
                                 } catch (GameException e) {
                                     e.printStackTrace();
@@ -388,7 +388,7 @@ public class BlueMainActivity extends AppCompatActivity {
                         case BluetoothChatService.STATE_CONNECTED:
                             // setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             Log.d(TAG, "handleMessage:  connected");
-                            String message = 3344 + " " + p2.getName() + " " + gameView.getViewWidth() + " " + gameView.getViewHeight();
+                            String message = 3344 + " " + Settings.pName + " " + gameView.getViewWidth() + " " + gameView.getViewHeight();
                             sendmessage(message);
 
                             break;
@@ -470,30 +470,34 @@ public class BlueMainActivity extends AppCompatActivity {
 
     };
 
+    private void sendmessage(String msg) {
+        sendMessage(msg);
+    }
+
     private void bluetoothinput(int msg, String name, int width, int height) {
         scalex = ((float) gameView.getViewWidth() / (float) width);
         scaley = ((float) gameView.getViewHeight() / (float) height);
 
         if (msg == 3344) {
             if (myturn) {
-                p1.setName("you");
+                mytoken = p1.getPlayerToken();
+                p1.setName(Settings.pName);
                 p2.setName(name);
-                top.setText("you");
+                top.setText(p1.getName());
                 bottom.setText(name);
             } else {
+                mytoken = p2.getPlayerToken();
                 p1.setName(name);
-                p2.setName("you");
-                top.setText(name + " start");
-                bottom.setText("you");
+                p2.setName(Settings.pName);
+                top.setText(name);
+                bottom.setText(p2.getName());
             }
+            topdesc.setText("Start buddy!!");
         }
 
     }
 
-    private void sendmessage(String msg) {
-        sendMessage(msg);
-    }
-
+    private boolean checkoffset = false;
     private void bluetoothinput(int msg, int x, int y) {
         //Log.d(TAG, "bluetoothinput: x = " + x + " y = " + y);
         if (msg == Constants.DOWN || msg == Constants.UP || msg == Constants.MOVE) {
@@ -507,6 +511,19 @@ public class BlueMainActivity extends AppCompatActivity {
                     currentBlueActor = game.getOpponentPlayer().getActorByNumber(x);
                 } else {
                     currentBlueActor = game.getCurrentTurnPlayer().getActorByNumber(x);
+                }
+                checkoffset = true;
+
+                break;
+            case Constants.MOVE:
+                //handle ACTION_MOVE from other device
+                if (currentBlueActor != null) {
+                    if(checkoffset){
+                        offsetX = x - currentBlueActor.getPosx();
+                        offsetY = y - currentBlueActor.getPosy();
+                        checkoffset = false;
+                    }
+                    currentBlueActor.setPosxy(x - offsetX, y - offsetY);
                 }
 
                 break;
@@ -566,7 +583,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
                     }
                 }
-                if (game.isTheGameOver() || totalMoves >= MAX_MOVES) {
+                if (game.isTheGameOver()) {
                     String finishLine;
                     String finishDesc;
                     if (!game.isTheGameOver()) {
@@ -662,7 +679,7 @@ public class BlueMainActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                        if (game.isTheGameOver() || totalMoves >= MAX_MOVES) {
+                        if (game.isTheGameOver()) {
                             String finishLine;
                             String finishDesc;
                             if (!game.isTheGameOver()) {
@@ -756,14 +773,7 @@ public class BlueMainActivity extends AppCompatActivity {
 
 
                 break;
-            case Constants.MOVE:
-                //handle ACTION_MOVE from other device
 
-                if (currentBlueActor != null) {
-                    currentBlueActor.setPosxy(x - offsetX, y - offsetY);
-                }
-
-                break;
             case Constants.UP:
                 //handle ACTION_UP from other device
                 Log.d("action", "up");
@@ -934,10 +944,6 @@ public class BlueMainActivity extends AppCompatActivity {
                                         showDialog(finishLine, finishDesc);
                                     }
                                     numberMoves = 0;
-                                    game = new LocalGame();
-                                    p1.reset();
-                                    p2.reset();
-                                    game.setPlayers(p1, p2);
                                 }
                             } catch (GameException e) {
                                 e.printStackTrace();
@@ -974,20 +980,28 @@ public class BlueMainActivity extends AppCompatActivity {
         }
 
         typeface = Typeface.createFromAsset(getAssets(),
-                "Gasalt-Black.ttf");
+                "CarterOne.ttf");
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
 
         handler = new Handler();
-        gameView = (GameView) findViewById(R.id.gameView);
+        gameView = (GameView)findViewById(R.id.gameView);
 
         top = (TextView) findViewById(R.id.top);
         bottom = (TextView) findViewById(R.id.bottom);
+        topdesc = (TextView) findViewById(R.id.topdesc);
+        bottomdesc = (TextView) findViewById(R.id.bottomdesc);
+        top.setTypeface(typeface);
+        topdesc.setTypeface(typeface);
+        bottom.setTypeface(typeface);
+        bottomdesc.setTypeface(typeface);
 
+
+        Settings.load(getApplicationContext());
         try {
             game = new LocalGame();
             p1 = new HumanPlayer("sam", Token.PLAYER_1, 9);
-            p2 = new HumanPlayer("kuku", Token.PLAYER_2, 9);
+            p2 = new HumanPlayer("Heyy!!", Token.PLAYER_2, 9);
 
             game.setPlayers(p1, p2);
             board = game.getGameBoard();
@@ -995,12 +1009,19 @@ public class BlueMainActivity extends AppCompatActivity {
         } catch (GameException e) {
             e.printStackTrace();
         }
-        top.setText(p1.getName() + " click to connect");
-        bottom.setText(p2.getName() + " ");
-        gameView.setOnTouchListener(gameListner);
-        myname = "sam";
+        refresh();
     }
 
+    public void refresh(){
+        numberMoves = 0;
+        p1.setName(Settings.pName);
+        top.setText(p1.getName());
+        bottom.setText("How you doin?");
+        topdesc.setText("Welcome to Blue Men's Morris");
+        bottomdesc.setText("Click on right to connect");
+        gameView.setOnTouchListener(gameListner);
+        gameView.invalidate();
+    }
     public void showDialog(String finishline, String finishdesc) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1165,7 +1186,56 @@ public class BlueMainActivity extends AppCompatActivity {
 
     public void startblue(View view) {
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
-        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
+        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
         ensureDiscoverable();
+    }
+
+    public void options(View v) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.opt, null);
+        TextView tv1 = (TextView) view.findViewById(R.id.gamename);
+        tv1.setTypeface(typeface1);
+
+        alertDialogBuilder.setView(view);
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
+        finishnewgame.setTypeface(typeface);
+        Button settings = (Button) view.findViewById(R.id.set);
+        settings.setTypeface(typeface);
+
+        finishnewgame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //save the achiewments
+                gameView.stopHandler();
+              //  init();
+                alertDialog.cancel();
+            }
+        });
+
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(BlueMainActivity.this, Settings.class));
+                alertDialog.cancel();
+            }
+        });
+        Button helps = (Button) view.findViewById(R.id.helps);
+        helps.setTypeface(typeface);
+
+        helps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(BlueMainActivity.this, AboutActivity.class));
+                alertDialog.cancel();
+            }
+        });
+        //  alertDialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+        alertDialog.show();
     }
 }
