@@ -22,7 +22,7 @@
         android:layout_height="0dp"
         android:layout_below="@+id/top"
         android:layout_weight="10"
-        android:background="@drawable/roundgridtextbg" />
+        android:background="@drawable/gamebg" />
 
     <TextView
         android:id="@+id/bottom"

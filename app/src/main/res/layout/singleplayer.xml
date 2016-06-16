@@ -8,23 +8,11 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:text="@string/single1"
-        android:textColor="#000"
-        android:textSize="20sp"
-        android:typeface="serif"
-
-        />
-
     <Button
         android:id="@+id/easy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/easy"
         android:onClick="levelchooser" />
 
@@ -32,7 +20,7 @@
         android:id="@+id/medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/medium"
         android:onClick="levelchooser" />
 
@@ -43,14 +31,6 @@
         android:layout_marginBottom="20dp"
         android:background="@drawable/hard"
         android:onClick="levelchooser" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/settingsBoard"
-        android:textColor="#000"
-        android:textSize="20sp"
-        android:typeface="serif" />
 
 
 </LinearLayout>

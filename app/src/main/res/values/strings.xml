@@ -1,20 +1,14 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">BlueNineMenMoris</string>
+    <string name="app_name">Blue Men\'s Morris</string>
     <string name="blue">Blue</string>
     <string name="me">Somveer Saini</string>
     <string name="email">Somveersaini@live.com</string>
     <string name="phone">8090150580</string>
     <string name="fb">fb.com/bluedroid15</string>
-    <string name="btnplay">PLAY</string>
-    <string name="btnplayai">Android</string>
+    <string name="btnplay">Two Player</string>
+    <string name="btnplayai">Single Player</string>
     <string name="netPlay">Network Game</string>
     <string name="settingsBoard">Board Size</string>
-    <string name="settingsSet">Set</string>
-    <string name="hintcolumn">Col</string>
-    <string name="move">Blue Flood</string>
-    <string name="hintrow">Row</string>
-    <string name="btnmygame"> My Game   </string>
-    <string name="btnsolution">DFS Solution</string>
     <string name="shortdesc">A NP-Hard problem\nBeat the DFS based approach</string>
     <string name="details">The game proceeds in three phases:\n
     Placing men on vacant points\n
@@ -39,7 +33,7 @@
     <string name="insecure_connect">Connect a device - Insecure</string>
     <string name="discoverable">Make discoverable</string>
 
-    <string name="bluePlay">bluetooth</string>
+    <string name="bluePlay">Bluetooth Game</string>
     <string name="single1">Choose the level of AI player</string>
     <string name="single2">AI player will have random name.</string>
 

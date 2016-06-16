@@ -1,20 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/appbg"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/servergame"
-        android:text="server"
+        android:text="Host Game"
+        android:background="@drawable/buttonbg"
         android:onClick="buttonGame"
+        android:layout_margin="10dp"
         />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:id="@+id/netdesc"
+        android:gravity="center"
+        android:text="Click above to Host a Game\n OR\n Enter the host IP to join the game"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/hostip"
+        android:hint="Enter IP"
+        android:gravity="center"
+        android:maxLength="20"
+        android:maxLines="1"
+        android:layout_margin="10dp"
+        android:textColor="@color/colorAccent"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/clientgame"
-        android:text="client"
+        android:text="Join Game"
+        android:background="@drawable/buttonbg"
         android:onClick="buttonGame"
         />
+
 
 </LinearLayout>

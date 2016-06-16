@@ -57,14 +57,16 @@ public class NetGameView extends View {
 
         game = new NetworkGame();
         Player p1 = new HumanPlayer("sam", Token.PLAYER_1,9);
-        Player p2 = new HumanPlayer("aac", Token.PLAYER_2,9);
+        Player p2 = new HumanPlayer("sam", Token.PLAYER_1,9);
+
         game.setPlayer(p1);
+        game.setOpponent(p2);
         board = game.getGameBoard();
 
 
-        graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bdots32);
+        graphic = (BitmapDrawable) context.getResources().getDrawable(R.mipmap.stone_b);
         bitmap = graphic.getBitmap();
-        graphic = (BitmapDrawable) context.getResources().getDrawable(R.drawable.bopp32);
+        graphic = (BitmapDrawable) context.getResources().getDrawable(R.mipmap.stone_w);
         bitmap2 = graphic.getBitmap();
 
         init();
@@ -132,7 +134,7 @@ public class NetGameView extends View {
         int startPieceY1 = squareStartY;
         int startPieceY2 = viewWidth + startPieceY1;
         game.getPlayer().setActors(startPieceX,startPieceY1);
-      //  game.getPlayer2().setActors(startPieceX,startPieceY2);
+        game.getOpponent().setActors(startPieceX,startPieceY2);
 
         removedSpace = viewWidth/10;
         removedx  = bitmap.getWidth()/2 + 1;
@@ -205,7 +207,7 @@ public class NetGameView extends View {
             c.drawBitmap(bitmap, actor.getPosx() - wt, actor.getPosy() - ht , null);
         }
 
-        Actor[] actors2 = game.getPlayer().getActors();
+        Actor[] actors2 = game.getOpponent().getActors();
         for (Actor actor : actors2) {
             c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht , null);
         }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class NetworkGame extends Game {
 	
 	protected Player player;
+	private Player opponent;
 	protected boolean thisPlayerTurn;
 	
 	public NetworkGame() {
@@ -54,5 +55,13 @@ public class NetworkGame extends Game {
 			}
 		}
 		opponentMoves.clear();
+	}
+
+	public Player getOpponent() {
+		return opponent;
+	}
+
+	public void setOpponent(Player opponent) {
+		this.opponent = opponent;
 	}
 }

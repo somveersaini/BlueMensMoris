@@ -57,7 +57,7 @@
             android:hint="Your Name"
             android:maxLength="20"
             android:maxLines="1"
-            android:textColor="#000"
+            android:textColor="@color/colorAccent"
             />
 
     </LinearLayout>
