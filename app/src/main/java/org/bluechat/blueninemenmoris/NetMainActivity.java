@@ -10,11 +10,14 @@ import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.Formatter;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.esotericsoftware.minlog.Log;
@@ -32,13 +35,17 @@ import org.bluechat.blueninemenmoris.net.GameClient;
 import org.bluechat.blueninemenmoris.net.GameServer;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class NetMainActivity extends AppCompatActivity {
@@ -74,6 +81,9 @@ public class NetMainActivity extends AppCompatActivity {
     int numberTries = 3;
     boolean firstTry;
 
+    String serverIP;
+    EditText hostIp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +96,7 @@ public class NetMainActivity extends AppCompatActivity {
         handler = new Handler();
         gameView = (NetGameView) findViewById(R.id.netGameView);
         setContentView(R.layout.connect);
+        hostIp = (EditText) findViewById(R.id.hostip);
 
         //network connect
 
@@ -442,7 +453,8 @@ public class NetMainActivity extends AppCompatActivity {
             initClientGame();
         }
     }
-
+    private static final Pattern PATTERN = Pattern.compile(
+            "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
     private void initServerGame() throws GameException, IOException {
         gs = new GameServer();
         gc = new GameClient(Token.PLAYER_1);
@@ -455,8 +467,12 @@ public class NetMainActivity extends AppCompatActivity {
             for (NetworkInterface netint : Collections.list(nets)) {
                 inetAddresses = netint.getInetAddresses();
                 for (InetAddress inetAddress : Collections.list(inetAddresses)) {
-                    com.esotericsoftware.minlog.Log.info(inetAddress.toString());
-                    System.out.println(inetAddress.getHostAddress());
+
+                    if (!inetAddress.isLoopbackAddress() && inetAddress.getHostAddress().length() < 16) {
+                        serverIP = inetAddress.getHostAddress();
+                        com.esotericsoftware.minlog.Log.info(inetAddress.toString());
+                        System.out.println(serverIP);
+                    }
                 }
             }
         } catch (SocketException e) { e.printStackTrace(); }
@@ -478,7 +494,8 @@ public class NetMainActivity extends AppCompatActivity {
             super.onPreExecute();
 
             //this method will be running on UI thread
-            pdLoading.setMessage("\tLoading...");
+            pdLoading.setMessage("\tServer initialized.\n" +
+                    "\tHost IP is \n\t" + serverIP + "\n\tWaiting for connection...");
             pdLoading.show();
         }
         @Override
@@ -514,15 +531,34 @@ public class NetMainActivity extends AppCompatActivity {
             //this method will be running on UI thread
             pdLoading.dismiss();
             setContentView(R.layout.activity_net_main);
+            setHostgame();
         }
     }
+
+    private void setHostgame() {
+
+    }
+
     private void initClientGame() throws GameException {
 
         gc = new GameClient(Token.PLAYER_2);
         p = new HumanPlayer("Aida",Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
         game.setPlayer(p);
 
-        new AsyncConnect().execute();
+        String iP = hostIp.getText().toString();
+        if(iP.length() > 6){
+            Matcher matcher = Patterns.IP_ADDRESS.matcher(iP);
+            if (matcher.matches()) {
+                serverIP = iP;
+                new AsyncConnect().execute();
+            }
+            else {
+                hostIp.setText("Please enter a valid IP");
+            }
+        }
+
+
+
 
     }
     private class AsyncConnect extends AsyncTask<Void, Void, Void>
@@ -534,7 +570,7 @@ public class NetMainActivity extends AppCompatActivity {
             super.onPreExecute();
 
             //this method will be running on UI thread
-            pdLoading.setMessage("\tconnecting...");
+            pdLoading.setMessage("\tConnecting to Host\n\t" + serverIP);
             pdLoading.show();
         }
         @Override
@@ -545,8 +581,8 @@ public class NetMainActivity extends AppCompatActivity {
 
             while(true) {
                 try {
-                    System.out.println("Connect to GameServer at IP address: 172.19.13.33");
-                    gc.connectToServer("172.19.13.33");
+                    System.out.println("Connect to GameServer at IP address: " + serverIP);
+                    gc.connectToServer(serverIP);
                     break;
                 } catch (Exception e) {
                     Log.info("No GameServer detected!");
@@ -570,6 +606,11 @@ public class NetMainActivity extends AppCompatActivity {
             //this method will be running on UI thread
             pdLoading.dismiss();
             setContentView(R.layout.activity_net_main);
+            setClientGame();
         }
+    }
+
+    private void setClientGame() {
+
     }
 }

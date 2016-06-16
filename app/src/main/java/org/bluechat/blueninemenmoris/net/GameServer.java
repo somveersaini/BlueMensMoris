@@ -30,6 +30,7 @@ public class GameServer extends Network {
 				return new GameConnection();
 			}
 		};
+
 		Network.register(server);
 		
 		server.addListener(new Listener() {
