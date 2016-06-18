@@ -7,14 +7,58 @@
     android:weightSum="12"
     tools:context="org.bluechat.blueninemenmoris.MainActivity">
 
-    <TextView
-        android:id="@+id/top"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:layout_weight="1"
+        android:weightSum="1"
+        android:padding="4dp"
+        android:orientation="horizontal"
         android:background="@drawable/txtbg"
-        android:text="Somveer saini"
-        android:textSize="30sp" />
+        android:layout_height="0dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:id="@+id/p1icon"
+            android:layout_margin="2dp"
+            android:background="@mipmap/stone_b"
+            android:padding="17dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="2"
+            android:layout_weight="0.75">
+            <TextView
+                android:id="@+id/top"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#ffffff"
+                android:text="Somveer"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/topdesc"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Somveer"
+                android:textSize="15sp" />
+        </LinearLayout>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.15"
+            android:layout_margin="2dp"
+            android:id="@+id/set1"
+            android:background="@drawable/menuicon"
+            android:padding="17dp"/>
+    </LinearLayout>
 
     <org.bluechat.blueninemenmoris.NetGameView
         android:id="@+id/netGameView"
@@ -24,13 +68,56 @@
         android:layout_weight="10"
         android:background="@drawable/gamebg" />
 
-    <TextView
-        android:id="@+id/bottom"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@+id/gameView"
         android:layout_weight="1"
+        android:weightSum="1"
+        android:padding="4dp"
+        android:orientation="horizontal"
         android:background="@drawable/txtbg"
-        android:text="Somveer saini"
-        android:textSize="30sp" />
+        android:layout_height="0dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:id="@+id/p2icon"
+            android:layout_margin="2dp"
+            android:background="@mipmap/stone_w"
+            android:padding="17dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="2"
+            android:layout_weight="0.75">
+            <TextView
+                android:id="@+id/bottom"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#ffffff"
+                android:text="Somveer"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/bottomdesc"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Somveer"
+                android:textSize="15sp" />
+        </LinearLayout>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.15"
+            android:layout_margin="2dp"
+            android:id="@+id/set2"
+            android:background="@drawable/menuicon"
+            android:padding="17dp"/>
+    </LinearLayout>
 </LinearLayout>

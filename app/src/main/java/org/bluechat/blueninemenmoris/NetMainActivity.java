@@ -71,6 +71,8 @@ public class NetMainActivity extends AppCompatActivity {
     private int offsetY;
 
 
+    TextView top, topdesc;
+    TextView bottom, bottomdesc;
 
     Handler handler;
     long HANDLER_DELAY = 100;
@@ -85,6 +87,8 @@ public class NetMainActivity extends AppCompatActivity {
     String serverIP;
     EditText hostIp;
     static boolean gameowner = false;
+
+    int boardIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,6 +213,14 @@ public class NetMainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            while(gc.isWaitingForGameStart()) {
+                System.out.println("Waiting for game to start");
+                try {
+                    Thread.sleep(600);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         }
 
@@ -225,10 +237,25 @@ public class NetMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_net_main);
         game = new NetworkGame();
         handler = new Handler();
+
+
+        top = (TextView) findViewById(R.id.top);
+        bottom = (TextView) findViewById(R.id.bottom);
+        topdesc = (TextView) findViewById(R.id.topdesc);
+        bottomdesc = (TextView) findViewById(R.id.bottomdesc);
+        top.setTypeface(typeface);
+        topdesc.setTypeface(typeface);
+        bottom.setTypeface(typeface);
+        bottomdesc.setTypeface(typeface);
+        top.setText(Settings.pName);
+        bottom.setText("Opponent");
+        topdesc.setText("Your turn");
+        bottomdesc.setText("Connected");
+
         gameView = (NetGameView) findViewById(R.id.netGameView);
 
         try {
-            p = new HumanPlayer("Miguel",Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER);
+            p = new HumanPlayer(Settings.pName,Token.PLAYER_1, Game.NUM_PIECES_PER_PLAYER);
             p2 = new HumanPlayer("Opponent", Token.PLAYER_2,9);
         } catch (GameException e) {
             e.printStackTrace();
@@ -239,6 +266,12 @@ public class NetMainActivity extends AppCompatActivity {
         gameView.setGame(game);
         gameView.setOnTouchListener(gameListner);
         gameView.invalidate();
+
+        System.out.println("GAME IS ON!!!");
+        if(gc.getPlayerThatPlaysFirst() == p.getPlayerToken()) {
+            System.out.println("I'M THE ONE WHO PLAYS FIRST!");
+            game.setTurn(true);
+        }
     }
 
     private void initClientGame() throws GameException {
@@ -255,10 +288,6 @@ public class NetMainActivity extends AppCompatActivity {
                 hostIp.setText("Please enter a valid IP");
             }
         }
-
-
-
-
     }
     private class AsyncConnect extends AsyncTask<Void, Void, Void>
     {
@@ -296,6 +325,14 @@ public class NetMainActivity extends AppCompatActivity {
                     Log.info("Trying another connection.");
                 }
             }
+            while(gc.isWaitingForGameStart()) {
+                System.out.println("Waiting for game to start");
+                try {
+                    Thread.sleep(600);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         }
 
@@ -312,10 +349,24 @@ public class NetMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_net_main);
         game = new NetworkGame();
         handler = new Handler();
+
+        top = (TextView) findViewById(R.id.top);
+        bottom = (TextView) findViewById(R.id.bottom);
+        topdesc = (TextView) findViewById(R.id.topdesc);
+        bottomdesc = (TextView) findViewById(R.id.bottomdesc);
+        top.setTypeface(typeface);
+        topdesc.setTypeface(typeface);
+        bottom.setTypeface(typeface);
+        bottomdesc.setTypeface(typeface);
+        top.setText("Opponent");
+        bottom.setText(Settings.pName);
+        topdesc.setText("Connected. Place man");
+        bottomdesc.setText("Waiting..");
+
         gameView = (NetGameView) findViewById(R.id.netGameView);
 
         try {
-            p = new HumanPlayer("Aida",Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
+            p = new HumanPlayer(Settings.pName,Token.PLAYER_2, Game.NUM_PIECES_PER_PLAYER);
             p2 = new HumanPlayer("Opponent", Token.PLAYER_1,9);
         } catch (GameException e) {
             e.printStackTrace();
@@ -327,6 +378,12 @@ public class NetMainActivity extends AppCompatActivity {
         gameView.setGame(game);
         gameView.setOnTouchListener(gameListner);
         gameView.invalidate();
+
+        System.out.println("GAME IS ON!!!");
+        if(gc.getPlayerThatPlaysFirst() == p.getPlayerToken()) {
+            System.out.println("I'M THE ONE WHO PLAYS FIRST!");
+            game.setTurn(true);
+        }
     }
 
     View.OnTouchListener gameListner = new View.OnTouchListener() {
@@ -336,7 +393,7 @@ public class NetMainActivity extends AppCompatActivity {
             int index = event.getActionIndex();
             int pointerId = event.getPointerId(index);
 
-            if(game.isThisPlayerTurn()) {
+            if(gc.isThisPlayerTurn()) {
                 if (action == MotionEvent.ACTION_DOWN) {
 
                     currenttime = (int) Math.abs(System.currentTimeMillis());
@@ -456,14 +513,14 @@ public class NetMainActivity extends AppCompatActivity {
                         }
 
                         Player p = game.getPlayer();
-                        int boardIndex;
+
                         if (min < 80 && mini != -1) {
                             android.util.Log.d("current game phase", "  ->  " + game.getCurrentGamePhase());
                             boardIndex = mini;
                             if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
                                 try {
                                     if (game.isThisPlayerTurn()) {
-                                        Player player = game.getPlayer();
+                                        final Player player = game.getPlayer();
                                         if (madeamill) {
                                             // ask for the index of the opponent piece
                                             System.out.println("You made a mill. You can remove a piece of your oponent. Remove piece at: " + boardIndex);
@@ -489,33 +546,43 @@ public class NetMainActivity extends AppCompatActivity {
                                             System.out.println(player.getName() + " place piece on: " + boardIndex);
 
                                             // validate placing with the connect
-                                            if (gc.validatePiecePlacing(boardIndex)) {
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (gc.validatePiecePlacing(boardIndex)) {
 
-                                                // validate placing locally
-                                                if (game.placePieceOfPlayer(boardIndex, player.getPlayerToken())) {
+                                                        // validate placing locally
+                                                        try {
+                                                            if (game.placePieceOfPlayer(boardIndex, player.getPlayerToken())) {
 
-                                                    if (game.madeAMill(boardIndex, player.getPlayerToken())) {
-                                                        madeamill = true;
+                                                                if (game.madeAMill(boardIndex, player.getPlayerToken())) {
+                                                                    madeamill = true;
+                                                                }
+                                                                game.setTurn(false);
+                                                            }
+                                                        } catch (GameException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    } else {
+                                                        System.out.println("The connect has considered that move invalid. Try again");
                                                     }
-                                                    game.setTurn(false);
                                                 }
-                                            } else {
-                                                System.out.println("The connect has considered that move invalid. Try again");
-                                            }
+                                            }).start();
+
                                         }
                                     }
                                 } catch (GameException e) {
                                     e.printStackTrace();
                                 }
-                                //Thread.sleep(10);
-                                game.setTurn(gc.isThisPlayerTurn());
+                                //
+
                                 // check if the other player played the last piece of the placing phase
-                                if (game.getCurrentGamePhase() != Game.PLACING_PHASE) {
-                                    // getting the right player to make the first move
-                                    if (game.playedFirst(gc.getPlayerThatPlaysFirst())) {
-                                        game.setTurn(true);
-                                    }
-                                }
+//                                if (game.getCurrentGamePhase() != Game.PLACING_PHASE) {
+//                                    // getting the right player to make the first move
+//                                    if (game.playedFirst(gc.getPlayerThatPlaysFirst())) {
+//                                        game.setTurn(true);
+//                                    }
+//                                }
                             } else {
                                 // System.out.println("The pieces are all placed. Starting the fun part... ");
                                 try {

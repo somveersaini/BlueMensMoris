@@ -207,11 +207,16 @@ public class NetGameView extends View {
             c.drawBitmap(bitmap, actor.getPosx() - wt, actor.getPosy() - ht , null);
         }
 
-        Actor[] actors2 = game.getOpponent().getActors();
-        for (Actor actor : actors2) {
-            c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht , null);
-        }
+        for (int i = 0; i < 24; i++) {
+            try {
+                if(board.getPosition(i).getPlayerOccupyingIt() == game.getOpponent().getPlayerToken()){
+                    c.drawBitmap(bitmap2, board.getX(i) - wt, board.getY(i) - ht , null);
+                }
+            } catch (GameException e) {
+                e.printStackTrace();
+            }
 
+        }
        // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
         h.postDelayed(r, FRAME_RATE);
