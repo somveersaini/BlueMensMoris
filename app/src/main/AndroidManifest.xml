@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SplashActivity" />
-        <activity android:name=".AcheivementsActivity" />
+        <activity android:name=".AchievementsActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".StartActivity">

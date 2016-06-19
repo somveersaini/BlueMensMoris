@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_weight="1"
         android:weightSum="1"
-        android:padding="4dp"
+        android:padding="6dp"
         android:orientation="horizontal"
         android:background="@drawable/txtbg"
         android:layout_height="0dp">
 
         <Button
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="0.1"
             android:id="@+id/p1icon"
             android:layout_margin="2dp"
@@ -81,7 +81,7 @@
 
         <Button
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="0.1"
             android:id="@+id/p2icon"
             android:layout_margin="2dp"
@@ -90,7 +90,7 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:weightSum="2"
             android:layout_weight="0.75">
@@ -115,11 +115,11 @@
         </LinearLayout>
         <Button
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="0.15"
             android:layout_margin="2dp"
             android:id="@+id/set2"
-            android:background="@drawable/menuicon"
+            android:background="@drawable/blue"
             android:onClick="startblue"
             android:padding="17dp"/>
     </LinearLayout>

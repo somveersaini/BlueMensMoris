@@ -30,7 +30,7 @@ public class Settings extends Activity {
 
     public static int gamewin = 0, gamedraw = 0, gamelost = 0;
     public static SoundPool sp;
-    public static int  place, place1, removestone, select, win,click, move, phasechange, mill;
+    public static int  place, select, win,click, move, phasechange, mill;
     public static String pName = "Sam";
 
     Switch ssfx;
@@ -50,10 +50,14 @@ public class Settings extends Activity {
 
         Typeface typeface = Typeface.createFromAsset(getAssets(),
                 "Gasalt-Black.ttf");
+        Typeface typeface1 = Typeface.createFromAsset(getAssets(),
+                "future.otf");
+
         name.setTypeface(typeface);
 
         ((TextView) findViewById(R.id.gameset1)).setTypeface(typeface);
         ((TextView) findViewById(R.id.gameset2)).setTypeface(typeface);
+        ((TextView) findViewById(R.id.setapp)).setTypeface(typeface1);
 
         settings = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
@@ -72,10 +76,8 @@ public class Settings extends Activity {
         move = sp.load(context, R.raw.move, 1);
         phasechange = sp.load(context, R.raw.phasechange, 1);
         place = sp.load(context, R.raw.place, 1);
-        place1 = sp.load(context, R.raw.place1, 1);
         win = sp.load(context, R.raw.win, 1);
         select = sp.load(context, R.raw.select, 1);
-        removestone = sp.load(context, R.raw.removestone, 1);
         mill = sp.load(context, R.raw.mill, 1);
 
         load(context);
@@ -161,17 +163,17 @@ public class Settings extends Activity {
     }
     static void placeSound() {
         if (sfx) {
-            sp.play(move,1f, 1f, 1, 0, 1);
+            sp.play(place,1f, 1f, 1, 0, 1);
         }
     }
     static void place1Sound() {
         if (sfx) {
-            sp.play(place1, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(place, 0.5f, 0.5f, 1, 0, 1);
         }
     }
     static void removeSound() {
         if (sfx) {
-            sp.play(removestone, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(place, 0.5f, 0.5f, 1, 0, 1);
         }
     }
     static void phaseSound() {

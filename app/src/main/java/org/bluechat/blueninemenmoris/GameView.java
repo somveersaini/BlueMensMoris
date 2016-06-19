@@ -5,9 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Shader;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -24,40 +21,25 @@ import org.bluechat.blueninemenmoris.model.Token;
 
 public class GameView extends View {
 
-    private final int FRAME_RATE = 20;
-    public int time = 0;
-    Bitmap bitmap, bitmap2;
-    int wt, ht;
-    private Handler h;
-    private Paint testPaint;
-    private Paint textPaint;                // for painting the text
-    private Paint finalPaint;
-    private Paint blurPaint;
-    private int viewHeight;
-    private int viewWidth;
-    private int squareSpace;
-    private int removedx; // for x of removed piece
+    private Paint finalPaint, blurPaint;  //painting
+    private int viewHeight, viewWidth, wt, ht;
+    private int squareSpace, squareStartY, squareStartX; //for board drawing
+    private int startPieceX, startPieceY1, startPieceY2;
+    private int removedX; // for x of removed piece
     private int removedSpace; //for spacing the pieces
-    private Board board;     //gameboard
-    private LocalGame game;   //localgame
-    private  long gamesStart;
+
+    private LocalGame game;   //game
+    private Board board;     //gameBoard
     private BitmapDrawable graphic;
-    private int starttimeinsec = 0;
-    int startPieceX ;
-    int startPieceY1 ;
-    int startPieceY2;
+    private Bitmap bitmap, bitmap2;   //stone bitmaps
 
-    int  squareStartY;
-    int squareStartX;
-
-
+    private Handler h;
     private Runnable r = new Runnable() {
 
         public void run() {
             invalidate();
         }
     };
-
 
     public GameView(Context context, AttributeSet attrs) throws GameException {
         super(context, attrs);
@@ -67,7 +49,6 @@ public class GameView extends View {
         Player p2 = new HumanPlayer("aac", Token.PLAYER_2,9);
         game.setPlayers(p1,p2);
         board = game.getGameBoard();
-
 
         graphic = (BitmapDrawable) context.getResources().getDrawable(R.mipmap.stone_b);
         bitmap = graphic.getBitmap();
@@ -81,28 +62,12 @@ public class GameView extends View {
 
         wt = bitmap.getWidth()/2;
         ht = bitmap.getHeight()/2;
-
-        gamesStart = System.nanoTime();
         h = new Handler();
-        starttimeinsec = (int) System.currentTimeMillis() / 1000;
-
-        // ColorFilter colorFilter = new LightingColorFilter(Color.WHITE, Color.parseColor("#1e90ff"));
-        //EmbossMaskFilter embossMaskFilter = new EmbossMaskFilter(new float[]{0,0,0},0.5f,10, 3f);
-
-        Shader shader = new RadialGradient(viewWidth, viewHeight, 350, Color.BLUE, Color.parseColor("#2979ff"), Shader.TileMode.CLAMP);
-
-        testPaint = new Paint();
-        testPaint.setColor(Color.MAGENTA);
-        testPaint.setAntiAlias(true);
-        testPaint.setStrokeWidth(5);
-        testPaint.setStrokeJoin(Paint.Join.ROUND);
-        testPaint.setStyle(Paint.Style.STROKE);
 
         finalPaint = new Paint();
         finalPaint.setAntiAlias(true);
         finalPaint.setStrokeWidth(5);
         finalPaint.setStyle(Paint.Style.FILL);
-        // finalPaint.setShader(shader);
 
         blurPaint = new Paint();
         blurPaint.setAntiAlias(true);
@@ -111,13 +76,6 @@ public class GameView extends View {
         blurPaint.setColor(Color.parseColor("#2196fe"));
         blurPaint.setStrokeWidth(6);
 
-
-        textPaint = new Paint();
-        textPaint.setColor(Color.parseColor("#76ff03"));
-        textPaint.setTextSize(32);
-        textPaint.setTypeface(Typeface.SERIF);
-        textPaint.setAntiAlias(true);
-        textPaint.setShadowLayer(9f, 3, 3, Color.parseColor("#2090ff"));
     }
 
     @Override
@@ -126,11 +84,11 @@ public class GameView extends View {
 
         viewWidth = xNew;
         viewHeight = yNew;
+
         Log.d("gameview", viewHeight +  " " + viewWidth);
 
         squareStartY =   (viewHeight - viewWidth)/2;
         squareStartX = viewWidth / 8;
-
         board.setPosXY(squareStartX,squareStartY);
 
 
@@ -143,20 +101,20 @@ public class GameView extends View {
         game.getPlayer2().setActors(startPieceX,startPieceY2);
 
         removedSpace = viewWidth/10;
-        removedx  = bitmap.getWidth()/2 + 1;
-        if(squareStartX > 4*removedx){
-            removedx = squareStartX /2;
+        removedX = bitmap.getWidth()/2 + 1;
+        if(squareStartX > 4* removedX){
+            removedX = squareStartX /2;
         }
 
 
     }
 
     public  int getP1rx(){
-        return removedx;
+        return removedX;
     }
 
     public  int getP2rx(){
-        return viewWidth - removedx;
+        return viewWidth - removedX;
     }
 
     public int getP1ry(int removedPieceP1){
@@ -167,21 +125,7 @@ public class GameView extends View {
         return (viewWidth + squareSpace) - (removedPieceP2 * removedSpace);
     }
 
-    public Bitmap getBitmap(){
-        return bitmap;
-    }
-
     protected void onDraw(Canvas c) {
-
-        int ctime = (int) System.currentTimeMillis() / 1000;
-        int diff = ctime - starttimeinsec;
-        starttimeinsec = ctime;
-       // if(focus){
-            time += diff;
-       // }
-        int min = time / 60;
-        int sec = time % 60;
-
 
         c.drawLine(board.getX(0), board.getY(0), board.getX(2), board.getY(2), blurPaint);
         c.drawLine(board.getX(23), board.getY(23), board.getX(2), board.getY(2), blurPaint);
@@ -206,7 +150,6 @@ public class GameView extends View {
 
         for (int i = 0; i < Board.NUM_POSITIONS_OF_BOARD; ++i) {
             c.drawCircle(board.getX(i), board.getY(i),10f,finalPaint);
-           // c.drawBitmap(bitmap, board.getX(i) - wt, board.getY(i) - ht , null);
         }
 
         Actor[] actors1 = game.getPlayer1().getActors();
@@ -222,20 +165,16 @@ public class GameView extends View {
                 c.drawBitmap(bitmap2, actor.getPosx() - wt, actor.getPosy() - ht, null);
             }
         }
-       // c.drawText("TIME  " + Integer.toString(min / 10) + Integer.toString(min % 10) + ":" + Integer.toString(sec / 10) + Integer.toString(sec % 10), 25, 55, textPaint);
 
-
-        h.postDelayed(r, FRAME_RATE);
+        h.postDelayed(r, 20);
     }
     public void stopHandler(){
         h.removeCallbacksAndMessages(null);
     }
 
-
     public Board getBoard() {
         return board;
     }
-
     public void setBoard(Board board) {
         this.board = board;
     }
@@ -243,7 +182,6 @@ public class GameView extends View {
     public int getViewHeight() {
         return viewHeight;
     }
-
     public int getViewWidth() {
         return viewWidth;
     }
@@ -273,5 +211,4 @@ public class GameView extends View {
         this.game = game;
         this.board = game.getGameBoard();
     }
-
 }

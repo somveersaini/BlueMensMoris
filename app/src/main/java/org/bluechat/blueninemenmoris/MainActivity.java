@@ -7,14 +7,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -38,19 +35,13 @@ public class MainActivity extends AppCompatActivity {
     Actor currActor = null;
     Typeface typeface, typeface1;
     Player p1, p2;
-    Actor rActor;
-    Actor actionActor;
-    Handler handler;
-    long HANDLER_DELAY = 10;
-    TextView top, topdesc;
-    TextView bottom, bottomdesc;
+    Actor rActor, actionActor;
+    TextView top, topdesc, bottom, bottomdesc;
     private Board board;
     private GameView gameView;
-    private int numberGames = 1, fixedNumberGames = 1, numberMoves = 0, draws = 0, p1Wins = 0, p2Wins = 0;
-    private  long gamesStart;
+    private int  numberMoves = 0;
     private int removedPieceP1, removedPieceP2;
-    private int starttime = 0, currenttime = 0;
-    private VelocityTracker mVelocityTracker = null;
+
     private boolean madeamill = false;
     private int offsetX;
     private int offsetY;
@@ -61,32 +52,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
-            int index = event.getActionIndex();
-            int pointerId = event.getPointerId(index);
-
-
 
             if (action == MotionEvent.ACTION_DOWN) {
-
-                currenttime = (int) Math.abs(System.currentTimeMillis());
-                currenttime = Math.abs(currenttime);
-
-                if (mVelocityTracker == null) {
-                    mVelocityTracker = VelocityTracker.obtain();
-                } else {
-                    mVelocityTracker.clear();
-                }
-                mVelocityTracker.addMovement(event);
-
                 int y = (int) event.getY();
                 int x = (int) event.getX();
 
                 int min = 10000;
 
-
                 if (madeamill) {
-                    //Token opponentPlayer = (game.getCurrentTurnPlayer().getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-
                     Actor[] actorscurrent = game.getOpponentPlayer().getActors();
                     for (Actor actor : actorscurrent) {
                         if (!actor.isRemoved()) {
@@ -146,15 +119,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //  Log.d("selected opponent piece", " " + mini);
                 }
-                starttime = currenttime;
 
             } else if (action == MotionEvent.ACTION_MOVE) {
-                mVelocityTracker.addMovement(event);
-                mVelocityTracker.computeCurrentVelocity(1000);
-                int xvel = (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-                int yvel = (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, pointerId);
-
-                int vel = (int) Math.sqrt(xvel * xvel + yvel * yvel);
 
                 int y = (int) event.getY();
                 int x = (int) event.getX();
@@ -309,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                                                 bottomdesc.setText("Your turn!!");
                                                 topdesc.setText("Waiting...");
                                             }
-                                            if (game.getCurrentTurnPlayer().isAI()) {
+                                            if (game.getCurrentTurnPlayer().isAI() && !game.isTheGameOver()) {
                                                 new Asyncaiplay().execute();
                                             }
                                         } else {
@@ -350,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                                                     bottomdesc.setText("Your turn");
                                                     topdesc.setText("Waiting...");
                                                 }
-                                                if (game.getCurrentTurnPlayer().isAI()) {
+                                                if (game.getCurrentTurnPlayer().isAI() && !game.isTheGameOver()) {
                                                     new Asyncaiplay().execute();
                                                 }
                                             }
@@ -360,30 +326,22 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
-                                if (game.isTheGameOver() || numberMoves >= MAX_MOVES) {
+                                if (game.isTheGameOver()) {
                                     String finishLine;
                                     String finishDesc;
-                                    if (!game.isTheGameOver()) {
-                                        System.out.println("Draw!");
-                                        draws++;
-                                        finishLine = "Game Draw";
-                                        finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                                "\n" +
-                                                " Would you like to play a new game";
-                                        showDialog(finishLine, finishDesc);
-                                    } else {
-                                        Settings.winSound();
-                                        System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
-                                        if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
-                                            p1Wins++;
-                                            finishLine = game.getPlayer1().getName() + " Win!!";
-                                        } else {
-                                            p2Wins++;
-                                            finishLine = game.getPlayer2().getName() + " Win!!";
-                                        }
+                                    Settings.winSound();
+                                    System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
+                                    if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
+                                        Settings.addGame(getApplicationContext(),"win");
+                                        finishLine = game.getPlayer1().getName() + " Win!!";
                                         finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                                        showDialog(finishLine, finishDesc);
+                                    } else {
+                                        Settings.addGame(getApplicationContext(),"gamelost");
+                                        finishLine = game.getPlayer2().getName() + " Win!!";
+                                        finishDesc = "Oops!!\n Game lost.\n\n Would you like to play a new game";
                                     }
+
+                                    showDialog(finishLine, finishDesc);
                                     numberMoves = 0;
                                     game = new LocalGame();
                                     p1.reset();
@@ -427,7 +385,6 @@ public class MainActivity extends AppCompatActivity {
         typeface1 = Typeface.createFromAsset(getAssets(),
                 "future.otf");
 
-        handler = new Handler();
         gameView = (GameView)findViewById(R.id.gameView);
 
         top = (TextView) findViewById(R.id.top);
@@ -465,8 +422,10 @@ public class MainActivity extends AppCompatActivity {
         game = new LocalGame();
 
         p1.reset();
+        removedPieceP1 = 0;
         p1.setActors(gameView.getStartPieceX(), gameView.getStartPieceY1());
         p2.reset();
+        removedPieceP2 = 0;
         p2.setActors(gameView.getStartPieceX(), gameView.getStartPieceY2());
         game.setPlayers(p1,p2);
         board = game.getGameBoard();
@@ -484,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
         bottomdesc.setText("Waiting..");
         gameView.setOnTouchListener(gameListner);
         gameView.invalidate();
+        Settings.phaseSound();
     }
     public void aiPlay(){
         try {
@@ -575,36 +535,28 @@ public class MainActivity extends AppCompatActivity {
                         game.updateCurrentTurnPlayer();
                     }
                 }else {
-                    numberMoves = MAX_MOVES;
+                    final String finishLine = p1.getName() + " Win!! ";
+                    final String finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game?";
+                    Settings.addGame(getApplicationContext(),"win");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showDialog(finishLine, finishDesc);
+                        }
+                    });
+                    numberMoves = 0;
                 }
-                if(game.isTheGameOver() || numberMoves >= MAX_MOVES){
-                    System.out.println(game.isTheGameOver() + " " + numberMoves);
-
-                    if (!game.isTheGameOver() && numberMoves > MAX_MOVES) {
-                        System.out.println("Draw!");
-                        draws++;
-                        final String finishLine = "Game Draw";
-                        final String finishDesc = "Opps!!\n No one wins\ncurrent game is a draw.\n" +
-                                "\n" +
-                                " Would you like to play a new game";
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showDialog(finishLine, finishDesc);
-                            }
-                        });
-
-                    } else {
-                        System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
-                        final String finishLine = game.getOpponentPlayer().getName() + " Win!! ";
-                        final String finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showDialog(finishLine, finishDesc);
-                            }
-                        });
-                    }
+                if(game.isTheGameOver()){
+                    System.out.println("Game over. Player "+ game.getOpponentPlayer().getPlayerToken()+" Won");
+                    Settings.addGame(getApplicationContext(),"lost");
+                    final String finishLine = p2.getName() + " Win!! ";
+                    final String finishDesc = "Oops!!\n Game lost.\n\n Would you like to play a new game?";
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showDialog(finishLine, finishDesc);
+                        }
+                    });
                     numberMoves = 0;
                 }
             }
@@ -629,7 +581,6 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        //  alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         Button finishnewgame = (Button) view.findViewById(R.id.finishnewgame);
         finishnewgame.setTypeface(typeface);
 

@@ -8,8 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 public class StartActivity extends AppCompatActivity {
 
     private boolean start = true;
@@ -30,29 +28,6 @@ public class StartActivity extends AppCompatActivity {
 
         Settings.init(getApplicationContext());
 
-
-    }
-
-    @Override
-    public void onWindowFocusChanged (boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus) {
-//            YoYo.with(Techniques.SlideInDown)
-//                    .duration(500)
-//                    .playOn(findViewById(R.id.play));
-//            YoYo.with(Techniques.SlideInUp)
-//                    .duration(550)
-//                    .playOn(findViewById(R.id.setting));
-//            YoYo.with(Techniques.SlideInUp)
-//                    .duration(600)
-//                    .playOn(findViewById(R.id.HelpActivity));
-//            YoYo.with(Techniques.SlideInUp)
-//                    .duration(650)
-//                    .playOn(findViewById(R.id.AboutActivity));
-//            YoYo.with(Techniques.SlideInUp)
-//                    .duration(700)
-//                    .playOn(findViewById(R.id.trophy));
-//        }
     }
 
     public void onResume(){
@@ -64,22 +39,6 @@ public class StartActivity extends AppCompatActivity {
         ((Button) findViewById(R.id.bluePlay)).setTypeface(typeface);
         ((TextView) findViewById(R.id.app)).setTypeface(typeface1);
 
-
-//        YoYo.with(Techniques.SlideInDown)
-//                .duration(500)
-//                .playOn(findViewById(R.id.play));
-//        YoYo.with(Techniques.SlideInUp)
-//                .duration(550)
-//                .playOn(findViewById(R.id.setting));
-//        YoYo.with(Techniques.SlideInUp)
-//                .duration(600)
-//                .playOn(findViewById(R.id.HelpActivity));
-//        YoYo.with(Techniques.SlideInUp)
-//                .duration(650)
-//                .playOn(findViewById(R.id.AboutActivity));
-//        YoYo.with(Techniques.SlideInUp)
-//                .duration(700)
-//                .playOn(findViewById(R.id.trophy));
     }
 
     public void buttonhandler(View view) {
@@ -107,7 +66,7 @@ public class StartActivity extends AppCompatActivity {
                 startActivity(new Intent(this, HelpActivity.class));
                 break;
             case R.id.trophy:
-                startActivity(new Intent(this, AcheivementsActivity.class));
+                startActivity(new Intent(this, AchievementsActivity.class));
                 break;
             case R.id.bluePlay:
                 startActivity(new Intent(this, BlueMainActivity.class));
