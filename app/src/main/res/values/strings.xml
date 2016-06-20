@@ -9,11 +9,37 @@
     <string name="btnplayai">Single Player</string>
     <string name="netPlay">Network Game</string>
     <string name="settingsBoard">Board Size</string>
-    <string name="shortdesc">A NP-Hard problem\nBeat the DFS based approach</string>
-    <string name="details">The game proceeds in three phases:\n
-    Placing men on vacant points\n
-        In this phase, you have to place all your pieces on board.\n\n
-    Moving men to adjacent points\n
+    <string name="shortdesc">Play Blue Men\'s Morris with friends over Bluetooth or any Network \nor\n play with Android.</string>
+    <string name="details">The basic aim of Blue Mens Morris is to make \"Mills\" - vertical or horizontal lines of three in a row.
+Every time this is achieved, an opponent\'s piece is removed.
+A player wins by reducing the opponent to two pieces or by leaving him without a legal move.
+\n\n
+The game proceeds in three phases:
+\n\n
+Phase 1:
+\nPlacing pieces (on vacant position)
+\n\n
+To begin with the board is empty. The players take turns placing their men one per play on vacant position.
+If a player is able to place three of his pieces in a straight line, vertically or horizontally,
+he has formed a mill and may remove one of his opponent\'s pieces from the board.
+Any piece can be chosen for the removal, but a piece not in an opponent\'s mill must be selected, if possible.
+\n\n
+Phase 2:
+\nMoving pieces (to adjacent position)
+\n\n
+Players continue to alternate moves, this time moving a man to an adjacent point.
+A piece may not jump another piece.
+Players continue to try to form mills and remove their opponent\'s pieces in the same manner as in phase one.
+A player may break a mill by moving one of his pieces out of an existing mill,
+then moving the piece back to form the same mill a second time (or any number of times),
+each time removing one of his opponent\'s men.
+\n\n
+Phase 3:
+\nFlying (to any valid position)
+\n\n
+When a player is reduced to three pieces, there is no longer a limitation on that player of moving to only adjacent position.
+The player\'s men may fly to any valid position.
+        \n
     Cheers!!!</string>
     <string name="title_activity_ai_main">AiMainActivity</string>
 

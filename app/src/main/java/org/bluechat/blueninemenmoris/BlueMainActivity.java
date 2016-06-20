@@ -35,7 +35,7 @@ import org.bluechat.blueninemenmoris.model.Player;
 import org.bluechat.blueninemenmoris.model.Token;
 
 public class BlueMainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActity";
+    private static final String TAG = "MainActivity";
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
@@ -78,14 +78,12 @@ public class BlueMainActivity extends AppCompatActivity {
                 if (action == MotionEvent.ACTION_DOWN) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-//                    msg = Constants.DOWN + " " + x + " " + y + " ";
-//                    new sendBlue().execute();
 
                     int min = 10000;
 
                     if (madeAMill) {
-                        Actor[] actorscurrent = game.getOpponentPlayer().getActors();
-                        for (Actor actor : actorscurrent) {
+                        Actor[] actorsCurrent = game.getOpponentPlayer().getActors();
+                        for (Actor actor : actorsCurrent) {
                             if (!actor.isRemoved()) {
                                 int t1 = y - (actor.getPosy());
                                 int t2 = x - (actor.getPosx());
@@ -100,8 +98,8 @@ public class BlueMainActivity extends AppCompatActivity {
                             }
                         }
                     } else {
-                        Actor[] actorscurrent = game.getCurrentTurnPlayer().getActors();
-                        for (Actor actor : actorscurrent) {
+                        Actor[] actorsCurrent = game.getCurrentTurnPlayer().getActors();
+                        for (Actor actor : actorsCurrent) {
                             if (game.getCurrentGamePhase() == Game.PLACING_PHASE) {
                                 if (!actor.isRemoved() && !actor.isPlaced()) {
                                     int t1 = y - (actor.getPosy());
@@ -129,22 +127,18 @@ public class BlueMainActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    Log.d("currentmin", " " + min);
+                    Log.d("currentMin", " " + min);
                     if (min > 100) {
                         currActor = null;
 
                     } else {
                         new sendBlue().execute(Constants.SELECT + "-" + currActor.getNumber() + "-0");
-                        Log.d("selected opponent piece", " send");
                     }
 
                 } else if (action == MotionEvent.ACTION_MOVE) {
                     int y = (int) event.getY();
                     int x = (int) event.getX();
 
-
-
-                    // Log.d("moving", x + " " + y);
                     if (currActor != null) {
                         currActor.setPosxy(x - offsetX, y - offsetY);
                        // final long currentTime = System.currentTimeMillis();
@@ -160,8 +154,6 @@ public class BlueMainActivity extends AppCompatActivity {
 
                     int y = (int) event.getY();
                     int x = (int) event.getX();
-//                    msg = Constants.UP + " " + x + " " + y;
-//                    new sendBlue().execute();;
 
                     Log.d("action", "up");
                     int min = 1000;
@@ -202,23 +194,16 @@ public class BlueMainActivity extends AppCompatActivity {
                                             if (opponentPlayer == Token.PLAYER_1) {
                                                 ++removedPieceP1;
                                                 currActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                                                //  Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
-
                                             } else {
                                                 ++removedPieceP2;
                                                 currActor.setPosxy(gameView.getP2rx(), gameView.getP2ry(removedPieceP2));
-                                                //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                             }
 
-                                          //  msg = Constants.SELECT + "-" + currActor.getNumber() + "-0-";
-                                          //  new sendBlue().execute();;
                                             new sendBlue().execute(Constants.REMOVE + "-" + currActor.getNumber() + "-" + boardIndex + "-");;
 
                                             currActor.setRemoved(true);
                                             madeAMill = false;
                                             game.updateCurrentTurnPlayer();
-
-                                            //TODO : send and update to bluetooth device
 
                                         } else {
                                             System.out.println("You can't remove a piece from there. Try again");
@@ -226,12 +211,9 @@ public class BlueMainActivity extends AppCompatActivity {
                                     } else {
                                         if (game.placePieceOfPlayer(boardIndex, p.getPlayerToken())) {
                                             Log.d("selected", "pos " + mini);
-                                            numberMoves++; // TODO testing
-                                            totalMoves++;
+
                                             p.raiseNumPiecesOnBoard();
 
-                                           // msg = Constants.SELECT + "-" + currActor.getNumber() + "-0-";
-                                           // new sendBlue().execute();;
                                             new sendBlue().execute(Constants.PLACE + "-" + currActor.getNumber() + "-" + boardIndex + "-");;
 
                                             currActor.setPosxy(board.getX(mini), board.getY(mini));
@@ -243,8 +225,6 @@ public class BlueMainActivity extends AppCompatActivity {
                                             } else {
                                                 System.out.println("changed current Player");
                                                 game.updateCurrentTurnPlayer();
-
-                                                //TODO : send and update to bluetooth device
                                             }
                                         } else {
                                             System.out.println("You can't place a piece there. Try again");
@@ -259,24 +239,18 @@ public class BlueMainActivity extends AppCompatActivity {
                                     if (!game.isTheGameOver() && numberMoves < MAX_MOVES) {
                                         if (madeAMill) {
                                             boardIndex = currActor.getPlacedIndex();
-                                            // Log.d("removing at pos", ""+ mini);
                                             Token opponentPlayer = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
                                             if (game.removePiece(boardIndex, opponentPlayer)) {
                                                 System.out.println("removed piece at " + boardIndex);
                                                 if (opponentPlayer == Token.PLAYER_1) {
                                                     ++removedPieceP1;
                                                     currActor.setPosxy(gameView.getP1rx(), gameView.getP1ry(removedPieceP1));
-                                                    //  Log.d("removed of 1 ", "placed at "+ " " + squareStart/2 + " " +(squareSpace) + ((removedPieceP1 + 1) * removedSpace));
 
                                                 } else {
                                                     ++removedPieceP2;
                                                     currActor.setPosxy(gameView.getP2rx(), gameView.getP2ry(removedPieceP2));
-                                                    //  Log.d("removed of 2 ", "placed at "+ (viewWidth - (squareStart/2))+ " " + ((viewWidth + squareSpace) - (removedPieceP2 * removedSpace)));
                                                 }
 
-                                              //  msg = Constants.SELECT + "-" + currActor.getNumber() + "-0-";
-                                              //  new sendBlue().execute();;
-                                              //  msg = Constants.REMOVE + "-" + currActor.getNumber() + "-" + boardIndex + "-";
                                                 new sendBlue().execute(Constants.REMOVE + "-" + currActor.getNumber() + "-" + boardIndex + "-");;
 
                                                 currActor.setRemoved(true);
@@ -297,21 +271,16 @@ public class BlueMainActivity extends AppCompatActivity {
 
                                             int result;
                                             if ((result = game.movePieceFromTo(srcIndex, destIndex, p.getPlayerToken())) == Game.VALID_MOVE) {
-                                                numberMoves++; // TODO testing
-                                                totalMoves++;
+
                                                 currActor.setPosxy(board.getX(mini), board.getY(mini));
                                                 currActor.setPlacedIndex(mini);
-                                              //  msg = Constants.SELECT + "-" + currActor.getNumber() + "-" + srcIndex + "-";
-                                              //  new sendBlue().execute();;
-                                              //  msg = Constants.PLACE + "-" + currActor.getNumber() + "-" + destIndex + "-";
+
                                                 new sendBlue().execute(Constants.PLACE + "-" + currActor.getNumber() + "-" + destIndex + "-");;
                                                 if (game.madeAMill(destIndex, p.getPlayerToken())) {
                                                     madeAMill = true;
                                                 } else {
                                                     game.updateCurrentTurnPlayer();
                                                     System.out.println("changed current Player");
-
-                                                    //TODO : send and update to bluetooth device
 
                                                 }
                                             } else {
@@ -320,29 +289,20 @@ public class BlueMainActivity extends AppCompatActivity {
                                             }
                                         }
                                     }
-                                    if (game.isTheGameOver() || numberMoves >= MAX_MOVES) {
+                                    if (game.isTheGameOver()) {
                                         String finishLine;
                                         String finishDesc;
-                                        if (!game.isTheGameOver()) {
-                                            System.out.println("Draw!");
-                                            draws++;
-                                            finishLine = "Game Draw";
-                                            finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                                    "\n" +
-                                                    " Would you like to play a new game";
-                                            showDialog(finishLine, finishDesc);
-                                        } else {
-                                            System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
-                                            if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
-                                                p1Wins++;
-                                                finishLine = game.getPlayer1().getName() + " Win!!";
-                                            } else {
-                                                p2Wins++;
-                                                finishLine = game.getPlayer2().getName() + " Win!!";
-                                            }
+                                        if ((game).getOpponentPlayer().getPlayerToken() == myToken) {
+                                            Settings.addGame(getApplicationContext(),"win");
+                                            finishLine = "Winner!!";
                                             finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                                            showDialog(finishLine, finishDesc);
+                                        } else {
+                                            Settings.addGame(getApplicationContext(),"lost");
+                                            finishLine = "Busted!!";
+                                            finishDesc = "Oops!!\n Game lost.\n\n Would you like to play a new game";
                                         }
+
+                                        showDialog(finishLine, finishDesc);
                                         numberMoves = 0;
                                     }
                                 } catch (GameException e) {
@@ -359,7 +319,6 @@ public class BlueMainActivity extends AppCompatActivity {
                     } else {
                         currActor = null;
                     }
-
                 }
             }
             return true;
@@ -378,22 +337,17 @@ public class BlueMainActivity extends AppCompatActivity {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BluetoothChatService.STATE_CONNECTED:
-                            // setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             Log.d(TAG, "handleMessage:  connected");
                             String message = 3344 + "-" + Settings.pName + "-" + gameView.getViewWidth() + "-" + gameView.getViewHeight();
                             sendMsg(message);
-
                             break;
                         case BluetoothChatService.STATE_CONNECTING:
-                            // setStatus("Connecting...");
                             Log.d(TAG, "handleMessage: connecting");
                             break;
                         case BluetoothChatService.STATE_LISTEN:
                             break;
                         case BluetoothChatService.STATE_NONE:
                             Log.d(TAG, "handleMessage: state none");
-                            Log.d(TAG, "deviceListResult secure: not connected");
-                            //  setStatus("Currently not connected");
                             break;
                     }
                     break;
@@ -564,26 +518,18 @@ public class BlueMainActivity extends AppCompatActivity {
                         if (game.isTheGameOver()) {
                             String finishLine;
                             String finishDesc;
-                            if (!game.isTheGameOver()) {
-                                System.out.println("Draw!");
-                                draws++;
-                                finishLine = "Game Draw";
-                                finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                        "\n" +
-                                        " Would you like to play a new game";
-                                showDialog(finishLine, finishDesc);
+                            System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
+                            if ((game).getOpponentPlayer().getPlayerToken() == myToken) {
+                                Settings.addGame(getApplicationContext(),"win");
+                                finishLine = "Winner!!";
+                                finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game?";
                             } else {
-                                System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
-                                if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
-                                    p1Wins++;
-                                    finishLine = game.getPlayer1().getName() + " Win!!";
-                                } else {
-                                    p2Wins++;
-                                    finishLine = game.getPlayer2().getName() + " Win!!";
-                                }
-                                finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                                showDialog(finishLine, finishDesc);
+                                Settings.addGame(getApplicationContext(),"lost");
+                                finishLine = "Busted!!";
+                                finishDesc = "Oops!!\n Game lost.\n\n Would you like to play a new game?";
                             }
+                            finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
+                            showDialog(finishLine, finishDesc);
                             numberMoves = 0;
                             totalMoves = 0;
                             //reset the game
@@ -626,28 +572,17 @@ public class BlueMainActivity extends AppCompatActivity {
                     if (game.isTheGameOver()) {
                         String finishLine;
                         String finishDesc;
-                        if (!game.isTheGameOver()) {
-                            System.out.println("Draw!");
-                            draws++;
-                            finishLine = "Game Draw";
-                            finishDesc = "Opps!!\n No one wins\ncurrunt game is A draw.\n" +
-                                    "\n" +
-                                    " Would you like to play a new game";
-                            showDialog(finishLine, finishDesc);
+                        System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
+                        if ((game).getOpponentPlayer().getPlayerToken() == myToken) {
+                            Settings.addGame(getApplicationContext(),"win");
+                            finishLine = "Winner!!";
+                            finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game?";
                         } else {
-                            System.out.println("Game over. Player " + game.getOpponentPlayer().getPlayerToken() + " Won");
-                            if ((game).getOpponentPlayer().getPlayerToken() == Token.PLAYER_1) {
-                                p1Wins++;
-                                finishLine = game.getPlayer1().getName() + " Win!!";
-                            } else {
-                                p2Wins++;
-                                finishLine = game.getPlayer2().getName() + " Win!!";
-                            }
-                            finishDesc = "Hurray!!\n Game won.\n\n Would you like to play a new game";
-                            showDialog(finishLine, finishDesc);
+                            Settings.addGame(getApplicationContext(),"lost");
+                            finishLine = "Busted!!";
+                            finishDesc = "Oops!!\n Game lost.\n\n Would you like to play a new game?";
                         }
-                        numberMoves = 0;
-                        totalMoves = 0;
+                        showDialog(finishLine, finishDesc);
                     }
                 }
                 break;

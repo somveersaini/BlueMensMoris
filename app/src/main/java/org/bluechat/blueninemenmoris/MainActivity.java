@@ -343,10 +343,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     showDialog(finishLine, finishDesc);
                                     numberMoves = 0;
-                                    game = new LocalGame();
-                                    p1.reset();
-                                    p2.reset();
-                                    game.setPlayers(p1, p2);
                                 }
                             } catch (GameException e) {
                                 e.printStackTrace();

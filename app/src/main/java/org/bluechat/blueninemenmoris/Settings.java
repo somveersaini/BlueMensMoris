@@ -77,7 +77,7 @@ public class Settings extends Activity {
         phasechange = sp.load(context, R.raw.phasechange, 1);
         place = sp.load(context, R.raw.place, 1);
         win = sp.load(context, R.raw.win, 1);
-        select = sp.load(context, R.raw.select, 1);
+        select = sp.load(context, R.raw.btnbtn, 1);
         mill = sp.load(context, R.raw.mill, 1);
 
         load(context);
@@ -153,12 +153,12 @@ public class Settings extends Activity {
     //sounds
     static void buttonSound() {
         if (sfx) {
-            sp.play(click, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(click, 1f, 1f, 1, 0, 1);
         }
     }
     static void moveSound() {
         if (sfx) {
-            sp.play(move, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(move, 1f, 1f, 1, 0, 1);
         }
     }
     static void placeSound() {
@@ -183,7 +183,7 @@ public class Settings extends Activity {
     }
     static void selectSound() {
         if (sfx) {
-            sp.play(select, 0.5f, 0.5f, 1, 0, 1);
+            sp.play(select, 1f, 1f, 1, 0, 1);
         }
     }
     static void winSound() {
