@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -90,7 +91,7 @@
             android:onClick="buttonhandler"
             android:scaleType="fitCenter"
 
-            android:src="@drawable/ic_settings"
+            app:srcCompat="@drawable/ic_settings"
             android:text="Settings" />
         <ImageButton
             android:id="@+id/help"
@@ -100,7 +101,7 @@
             android:background="@null"
             android:onClick="buttonhandler"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_help"
+            app:srcCompat="@drawable/ic_help"
             android:text="Help" />
         <ImageButton
             android:id="@+id/about"
@@ -110,7 +111,7 @@
             android:background="@null"
             android:onClick="buttonhandler"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_info"
+            app:srcCompat="@drawable/ic_info"
             android:text="About"  />
         <ImageButton
             android:id="@+id/trophy"
@@ -120,7 +121,7 @@
             android:background="@null"
             android:onClick="buttonhandler"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_trophy"
+            app:srcCompat="@drawable/ic_trophy"
             android:text="Achivements"  />
     </LinearLayout>
 
